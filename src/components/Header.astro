@@ -1,0 +1,29 @@
+<header>
+  <div>
+    <button onclick="logout()">Cerrar sesión</button>
+  </div>
+</header>
+
+<script>
+  async function logout() {
+    try {
+      const response = await fetch("/api/logout", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (response.redirected) {
+        window.location.href = response.url;
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  }
+</script>
+
+<style>
+  div {
+    width: 100%;
+    display: flex;
+  }
+</style>
