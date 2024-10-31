@@ -1,10 +1,11 @@
 <header>
   <div>
-    <button onclick="logout()">Cerrar sesión</button>
+    <button logout-button>Cerrar sesión</button>
   </div>
 </header>
 
 <script>
+
   async function logout() {
     try {
       const response = await fetch("/api/logout", {
@@ -19,6 +20,11 @@
       console.error("Error logging out:", error);
     }
   }
+
+  const btn = document.querySelector("[logout-button]");
+
+  btn.addEventListener("click", logout);
+  
 </script>
 
 <style>
