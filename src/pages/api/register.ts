@@ -5,7 +5,6 @@ import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
 import argon2 from "argon2";
 
-// Cargar configuración de Supabase
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
