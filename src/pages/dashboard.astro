@@ -1,6 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { isLoggedIn } from "../utils/isLoggedIn";
 
+const cookie = Astro.request.headers.get('cookie');
+
+if (!isLoggedIn(cookie)) {
+  return Astro.redirect('/login');
+}
 
 ---
 
@@ -10,7 +16,7 @@ import Layout from "../layouts/Layout.astro";
 
     <input type="text" placeholder="Search for a password" />
     <button>Search</button>
-     
+
     <ul>
       <li>
         <h2>Facebook</h2>
@@ -24,12 +30,12 @@ import Layout from "../layouts/Layout.astro";
         <h2>Instagram</h2>
         <p>password</p>
       </li>
+    </ul>
 
-        <form>
-            <input type="text" placeholder="Name of the page" />
-            <input type="password" placeholder="Password" />
-            <button>Add Password</button>
-        </form>
-    
+    <form>utils
+      <input type="text" placeholder="Name of the page" />
+      <input type="password" placeholder="Password" />
+      <button>Add Password</button>
+    </form>
   </main>
 </Layout>
