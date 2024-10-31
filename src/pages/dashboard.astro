@@ -2,40 +2,79 @@
 import Layout from "../layouts/Layout.astro";
 import { isLoggedIn } from "../utils/isLoggedIn";
 
-const cookie = Astro.request.headers.get('cookie');
+const cookie = Astro.request.headers.get("cookie");
 
 if (!isLoggedIn(cookie)) {
-  return Astro.redirect('/login');
+  return Astro.redirect("/login");
 }
-
 ---
 
 <Layout title="Dashboard">
   <main>
     <h1>Welcome to the password manager</h1>
 
-    <input type="text" placeholder="Search for a password" />
-    <button>Search</button>
+    <!-- Búsqueda de contraseñas -->
+    <input type="text" id="search-input" placeholder="Search for a password" />
+    <button onclick="searchPasswords()">Search</button>
 
-    <ul>
+    <!-- Lista de contraseñas -->
+    <ul id="password-list">
+      <!-- Generar dinámicamente las entradas de contraseñas desde los datos del usuario -->
       <li>
         <h2>Facebook</h2>
-        <p>password</p>
+        <p>Username: usuarioFacebook</p>
+        <p>
+          Password: ******** <button onclick="copyToClipboard('password')"
+            >Copy</button>
+        </p>
+        <p>URL: https://www.facebook.com</p>
+        <p>Notes: Social media account.</p>
+        <p>Tags: social, personal</p>
       </li>
-      <li>
-        <h2>Twitter</h2>
-        <p>password</p>
-      </li>
-      <li>
-        <h2>Instagram</h2>
-        <p>password</p>
-      </li>
+      <!-- Repetir para más entradas -->
     </ul>
 
-    <form>utils
-      <input type="text" placeholder="Name of the page" />
-      <input type="password" placeholder="Password" />
-      <button>Add Password</button>
+    <!-- Formulario para agregar nuevas contraseñas -->
+    <form id="add-password-form" onsubmit="addPassword(event)">
+      <input
+        type="text"
+        name="site_name"
+        placeholder="Name of the page"
+        required
+      />
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <input type="url" name="url" placeholder="URL" />
+      <textarea name="notes" placeholder="Notes"></textarea>
+      <input type="text" name="tags" placeholder="Tags (comma-separated)" />
+      <button type="submit">Add Password</button>
     </form>
   </main>
+
+  <script>
+    // Función de búsqueda
+    function searchPasswords() {
+      const query = (
+        document.getElementById("search-input") as HTMLInputElement
+      ).value;
+      // Implementar búsqueda en la lista de contraseñas
+    }
+
+    // Función para copiar al portapapeles
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      setTimeout(() => {
+        navigator.clipboard.writeText(""); // Limpieza automática del portapapeles
+      }, 30000); // 30 segundos
+    }
+
+    // Función para agregar nueva contraseña
+    async function addPassword(event) {
+      event.preventDefault();
+      const formData = new FormData(
+        document.getElementById("add-password-form") as HTMLFormElement
+      );
+      // Enviar los datos a tu backend y encriptar antes de guardar
+    }
+  </script>
 </Layout>
