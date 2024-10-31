@@ -18,14 +18,12 @@ export const POST: APIRoute = async ({ request }) => {
 
   const { email, password } = await request.json();
 
-  // Verificación de campos obligatorios
   if (!email || !password) {
     return new Response(JSON.stringify({ error: "Email and password are required" }), {
       status: 400,
     });
   }
 
-  // Comprobar si el usuario ya existe en la base de datos
   const { data: existingUser, error: userFetchError } = await supabase
     .from("users")
     .select("id")
