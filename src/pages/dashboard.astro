@@ -1,0 +1,43 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Dashboard">
+  <main>
+    <h1>Welcome to the password manager</h1>
+
+
+    <!-- search functionality to search a password based on the name of the page -->
+
+
+    <input type="text" placeholder="Search for a password" />
+    <button>Search</button>
+     
+
+    <!-- list of passwords -->
+    
+    <ul>
+      <li>
+        <h2>Facebook</h2>
+        <p>password</p>
+      </li>
+      <li>
+        <h2>Twitter</h2>
+        <p>password</p>
+      </li>
+      <li>
+        <h2>Instagram</h2>
+        <p>password</p>
+      </li>
+
+
+      <!-- form to add a password -->
+
+        <form>
+            <input type="text" placeholder="Name of the page" />
+            <input type="password" placeholder="Password" />
+            <button>Add Password</button>
+        </form>
+    
+  </main>
+</Layout>
