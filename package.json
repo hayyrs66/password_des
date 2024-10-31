@@ -13,6 +13,7 @@
     "@astrojs/node": "^8.3.4",
     "@supabase/supabase-js": "^2.45.6",
     "argon2": "^0.41.1",
-    "astro": "^4.16.7"
+    "astro": "^4.16.7",
+    "jsonwebtoken": "^9.0.2"
   }
 }
