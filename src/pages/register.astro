@@ -1,0 +1,80 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Register">
+  <main>
+    <h1>Register</h1>
+    <form id="register-form" action="/api/register" method="post">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required />
+
+      <label for="repeat_password">Repeat Password</label>
+      <input
+        type="password"
+        id="repeat_password"
+        name="repeat_password"
+        required
+      />
+
+      <button type="submit">Register</button>
+    </form>
+  </main>
+</Layout>
+
+<script>
+  const form = document.getElementById("register-form") as HTMLFormElement;
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const email = (form.querySelector("#email") as HTMLInputElement).value;
+    const password = (form.querySelector("#password") as HTMLInputElement)
+      .value;
+    const repeatPassword = (
+      form.querySelector("#repeat_password") as HTMLInputElement
+    ).value;
+
+    if (!validateEmail(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    if (!validatePassword(password)) {
+      alert(
+        "Password must be at least 8 characters long and contain a mix of letters and numbers."
+      );
+      return;
+    }
+    if (password !== repeatPassword) {
+      alert("Passwords do not match. Please try again.");
+      return;
+    }
+
+    const response = await fetch(form.action, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (response.ok) {
+      alert("Registration successful!");
+    } else {
+      const errorData = await response.json();
+      alert(`Registration failed: ${errorData.error}`);
+    }
+  };
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function validatePassword(password) {
+    return (
+      password.length >= 8 && /\d/.test(password) && /[a-zA-Z]/.test(password)
+    );
+  }
+</script>
