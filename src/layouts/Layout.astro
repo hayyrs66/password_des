@@ -5,10 +5,19 @@ interface Props {
 
 const { title } = Astro.props;
 import Header from '../components/Header.astro';
+import '@fontsource/geist-sans/100.css';
+import '@fontsource/geist-sans/200.css';
+import '@fontsource/geist-sans/300.css';
+import '@fontsource/geist-sans/400.css';
+import '@fontsource/geist-sans/500.css';
+import '@fontsource/geist-sans/600.css';
+import '@fontsource/geist-sans/700.css';
+import '@fontsource/geist-sans/800.css';
+import '@fontsource/geist-sans/900.css';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="Astro description" />
@@ -27,5 +36,12 @@ import Header from '../components/Header.astro';
 		margin: 0;
 		padding: 0;
 		box-sizing: border-box;
+	}
+	html{
+		scroll-behavior: smooth;
+	}
+	body{
+		font-family: 'Geist Sans', sans-serif;
+		background-color: #0a0a0a;
 	}
 </style>
