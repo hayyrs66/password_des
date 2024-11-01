@@ -1,8 +1,42 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Welcome to Astro.">
-	<main>
-	</main>
+  <main>
+    <section class="w-full h-screen relative">
+      <div class="relative h-full w-ful">
+        <div
+          class="absolute -z-10 bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"
+        >
+        </div>
+
+        <div class="w-full h-full flex-col flex justify-center items-center">
+          <p class="text-[0.855rem] tracking-tight text-white/85 border border-primary-dark bg-[#181818] px-3 py-1 rounded-md">
+            KeyPass is in beta. We're refining features and security—your
+            feedback is invaluable!
+          </p>
+          <div class="mt-10">
+            <h3
+              class="text-6xl tracking-tighter font-normal text-white text- text-balance max-w-4xl text-center leading-10"
+            >
+              Ensure Your Passwords
+            </h3>
+            <h3
+              class="text-6xl tracking-tighter font-normal text-primary text- text-balance max-w-2xl text-center mt-4"
+            >
+              Are Safe With Us
+            </h3>
+          </div>
+          <p
+            class="text-white/70 max-w-xl mt-5 text-pretty text-center leading-normal font-medium tracking-tight"
+          >
+            KeyPass is a secure, encrypted password manager. Safely store,
+            organize, and access your credentials with RSA and DES encryption,
+            advanced search, import/export, and automatic security features.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
 </Layout>
