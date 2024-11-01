@@ -1,11 +1,25 @@
-<header>
+---
+
+---
+
+<header
+  class="w-full flex justify-between items-center px-10 py-5 fixed top-0 left-0 z-10"
+>
+  <div class="flex items-center gap-2">
+    <img src="favicon.svg" alt="keypass" width="50" />
+    <h1 class="text-3xl tracking-tighter font-medium text-white/85">KeePass</h1>
+  </div>
   <div>
-    <button logout-button>Cerrar sesión</button>
+    <a
+      href="#"
+      class="text-white/85 bg-green px-4 rounded-[0.3rem] border border-primary tracking-wide py-1 text-sm login hover:bg-green-light transition-colors"
+      >Login</a
+    >
+    <!-- <button logout-button>Cerrar sesión</button> -->
   </div>
 </header>
 
 <script>
-
   async function logout() {
     try {
       const response = await fetch("/api/logout", {
@@ -24,12 +38,4 @@
   const btn = document.querySelector("[logout-button]");
 
   btn.addEventListener("click", logout);
-  
 </script>
-
-<style>
-  div {
-    width: 100%;
-    display: flex;
-  }
-</style>
