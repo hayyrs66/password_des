@@ -13,29 +13,7 @@ if (!isLoggedIn(cookie)) {
   <main>
     <h1>Welcome to the password manager</h1>
 
-    <!-- Búsqueda de contraseñas -->
-    <input type="text" id="search-input" placeholder="Search for a password" />
-    <button onclick="searchPasswords()">Search</button>
-
-    <!-- Lista de contraseñas -->
-    <ul id="password-list">
-      <!-- Generar dinámicamente las entradas de contraseñas desde los datos del usuario -->
-      <li>
-        <h2>Facebook</h2>
-        <p>Username: usuarioFacebook</p>
-        <p>
-          Password: ******** <button onclick="copyToClipboard('password')"
-            >Copy</button>
-        </p>
-        <p>URL: https://www.facebook.com</p>
-        <p>Notes: Social media account.</p>
-        <p>Tags: social, personal</p>
-      </li>
-      <!-- Repetir para más entradas -->
-    </ul>
-
-    <!-- Formulario para agregar nuevas contraseñas -->
-    <form id="add-password-form" onsubmit="addPassword(event)">
+    <form add-password-form>
       <input
         type="text"
         name="site_name"
@@ -47,34 +25,146 @@ if (!isLoggedIn(cookie)) {
       <input type="url" name="url" placeholder="URL" />
       <textarea name="notes" placeholder="Notes"></textarea>
       <input type="text" name="tags" placeholder="Tags (comma-separated)" />
+
+      <input
+        type="password"
+        name="master_password"
+        placeholder="Enter your master password"
+        required
+      />
+
       <button type="submit">Add Password</button>
+
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+
+      <!-- Botón para cargar los datos -->
+      <button load-passwords-button
+        >Load Passwords</button
+      >
+
+      <!-- Tabla para mostrar los datos -->
+      <table
+        id="passwordsTable"
+        style="display: none; width: 100%; border-collapse: collapse;"
+      >
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Site Name</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>URL</th>
+            <th>Notes</th>
+            <th>Tags</th>
+            <th>Creation Date</th>
+            <th>Update Date</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </form>
   </main>
 
   <script>
-    // Función de búsqueda
-    function searchPasswords() {
-      const query = (
-        document.getElementById("search-input") as HTMLInputElement
-      ).value;
-      // Implementar búsqueda en la lista de contraseñas
+
+    document
+      .querySelector("[load-passwords-button]")
+      .addEventListener("click", () => loadPasswords());
+    
+    async function loadPasswords() {
+      const masterPassword = prompt("Enter your master password:");
+
+      if (!masterPassword) return alert("Master password is required");
+
+      try {
+        const response = await fetch("/api/loadPasswords", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ master_password: masterPassword }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          return alert("Error: " + error.error);
+        }
+
+        const data = await response.json();
+        const table = document.getElementById("passwordsTable");
+        const tbody = table.querySelector("tbody");
+
+        tbody.innerHTML = "";
+
+        data.entries.forEach((entry) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${entry.id}</td>
+            <td>${entry.site_name}</td>
+            <td>${entry.username}</td>
+            <td>${entry.password}</td>
+            <td><a href="${entry.url}" target="_blank">${entry.url}</a></td>
+            <td>${entry.notes}</td>
+            <td>${entry.tags.join(", ")}</td>
+            <td>${new Date(entry.creation_date).toLocaleString()}</td>
+            <td>${new Date(entry.update_date).toLocaleString()}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        table.style.display = "table";
+      } catch (error) {
+        console.error("Error loading passwords:", error);
+        alert("Failed to load passwords.");
+      }
     }
 
-    // Función para copiar al portapapeles
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text);
-      setTimeout(() => {
-        navigator.clipboard.writeText(""); // Limpieza automática del portapapeles
-      }, 30000); // 30 segundos
-    }
+    document
+      .querySelector("[add-password-form]")
+      .addEventListener("submit", (e) => addPassword(e));
 
-    // Función para agregar nueva contraseña
     async function addPassword(event) {
       event.preventDefault();
+
       const formData = new FormData(
-        document.getElementById("add-password-form") as HTMLFormElement
+        document.querySelector("[add-password-form]") as HTMLFormElement
       );
-      // Enviar los datos a tu backend y encriptar antes de guardar
+      const data = {
+        site_name: formData.get("site_name"),
+        username: formData.get("username"),
+        password: formData.get("password"),
+        url: formData.get("url"),
+        notes: formData.get("notes"),
+        tags: formData.get("tags")
+          ? (formData.get("tags") as string).split(",").map((tag) => tag.trim())
+          : [],
+        master_password: formData.get("master_password"),
+      };
+      try {
+        const response = await fetch("/api/addPassword", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          alert("Password added successfully!");
+          (
+            document.querySelector("[add-password-form]") as HTMLFormElement
+          ).reset();
+        } else {
+          const error = await response.json();
+          alert(`Error: ${error.message}`);
+        }
+      } catch (error) {
+        console.error("Error adding password:", error);
+        alert("Failed to add password. Please try again.");
+      }
     }
   </script>
 </Layout>
