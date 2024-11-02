@@ -1,19 +1,70 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { isLoggedIn } from "../utils/isLoggedIn";
+
+const cookie = Astro.request.headers.get("cookie");
+
+if(isLoggedIn(cookie)){
+  return Astro.redirect("dashboard");
+}
+
 ---
 
 <Layout title="Login">
   <main>
-    <h1>Login</h1>
-    <form id="login-form" action="/api/login" method="post">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required />
+    <section class="w-full h-screen grid grid-cols-2">
+      <div class="flex flex-col justify-center bg-background-light px-20">
+        <div class="border-b border-b-white/40 w-full pb-5">
+          <span class="text-3xl text-white tracking-tight font-medium"
+            >Welcome Back</span
+          >
+          <p class="text-sm mt-4 text-white/60 tracking-tight font-medium">
+            Sign in to your account
+          </p>
+        </div>
+        <form
+          id="login-form"
+          action="/api/login"
+          method="post"
+          class="flex flex-col mt-5"
+        >
+          <label for="email" class="text-white/60 mb-2 text-sm tracking-tight"
+            >Email</label
+          >
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            class="border border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none mb-2"
+          />
 
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required />
+          <label
+            for="password"
+            class="text-white/60 mb-2 text-sm tracking-tight">Password</label
+          >
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            class="border border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none mb-2"
+          />
 
-      <button type="submit">Login</button>
-    </form>
+          <button
+            type="submit"
+            class="text-white/85 bg-green rounded-[0.3rem] border border-primary tracking-wide py-2 mt-5 text-sm login hover:bg-green-light transition-colors"
+            >Login</button
+          >
+        </form>
+      </div>
+      <div class="w-full h-full flex flex-col justify-center px-20">
+        <img src="quotes.svg" alt="quotes" width="70">
+          <p class="text-pretty text-3xl text-white/85 tracking-tight">
+            Your passwords, protected. Simplified security at your fingertips. 🔒
+          </p>
+      </div>
+    </section>
   </main>
 </Layout>
 
