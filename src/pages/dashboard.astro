@@ -1,170 +1,506 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import DashLayout from "../layouts/DashLayout.astro";
 import { isLoggedIn } from "../utils/isLoggedIn";
+import Password from "../components/Password.astro";
 
 const cookie = Astro.request.headers.get("cookie");
 
 if (!isLoggedIn(cookie)) {
   return Astro.redirect("/login");
 }
+
+let passwords = [];
+
+// Fetch decrypted password data from the endpoint
+async function loadPasswords(masterPassword, file) {
+  const formData = new FormData();
+  formData.append("master_password", masterPassword);
+  formData.append("file", file);
+
+  const response = await fetch("/api/loadPasswords", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (response.ok) {
+    passwords = await response.json();
+  } else {
+    console.error("Failed to load passwords");
+  }
+}
 ---
 
-<Layout title="Dashboard">
+<DashLayout title="Dashboard">
   <main>
-    <h1>Welcome to the password manager</h1>
+    <section class="w-full h-screen grid grid-cols-dashboard">
+      <!-- Sidebar -->
+      <div class="w-full h-full border-r border-r-white/15">
+        <div>
+          <h2
+            class="text-xl text-white tracking-tight border-b border-b-white/15 w-full px-5 py-3"
+          >
+            Dashboard
+          </h2>
+        </div>
+        <div>
+          <h2 class="text-sm text-white/60 tracking-normal px-5 py-3">
+            Settings
+          </h2>
+          <a
+            href=""
+            class="text-sm text-white/85 tracking-normal px-5 hover:text-white transition-colors"
+          >
+            Change password
+          </a>
+        </div>
+      </div>
 
-    <form add-password-form>
-      <input
-        type="text"
-        name="site_name"
-        placeholder="Name of the page"
-        required
-      />
-      <input type="text" name="username" placeholder="Username" required />
-      <input type="password" name="password" placeholder="Password" required />
-      <input type="url" name="url" placeholder="URL" />
-      <textarea name="notes" placeholder="Notes"></textarea>
-      <input type="text" name="tags" placeholder="Tags (comma-separated)" />
+      <!-- Main Content -->
+      <div class="w-full">
+        <div class="w-full flex justify-between items-center">
+          <h2
+            class="text-sm text-white/60 tracking-tight font-medium px-10 py-4 border-b border-b-white/15 w-full"
+          >
+            Passwords
+          </h2>
+        </div>
+        <div class="px-10 py-5">
+          <div class="flex gap-2">
+            <!-- Load Passwords Button -->
+            <button
+              id="open-dialog-btn"
+              class="text-white/85 bg-green outline-none px-4 rounded-[0.3rem] border border-primary tracking-wide py-0.5 text-sm login hover:bg-green-light transition-colors"
+            >
+              Load Passwords
+            </button>
+            <button
+              id="new-password-btn"
+              class="text-white/85 bg-[#242424] px-4 rounded-[0.3rem] outline-none border border-white/20 tracking-wide py-0.5 text-sm login hover:bg-[#313131] transition-colors"
+            >
+              New Passwords
+            </button>
+          </div>
 
-      <input
-        type="password"
-        name="master_password"
-        placeholder="Enter your master password"
-        required
-      />
+          <!-- Passwords Container -->
+          <div id="passwords-container" class="w-full flex gap-2 flex-col mt-5">
+          </div>
+        </div>
+      </div>
 
-      <button type="submit">Add Password</button>
-
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-
-      <!-- Botón para cargar los datos -->
-      <button load-passwords-button
-        >Load Passwords</button
+      <!-- Dialog for Password Input -->
+      <dialog
+        id="password-dialog"
+        class="absolute top-[50%] py-4 px-4 left-[50%] backdrop:bg-background/80 backdrop:filter backdrop:backdrop-blur-sm justify-enter items-center translate-y-[-50%] translate-x-[-50%] bg-background-light border border-white/20 w-[35rem] rounded-md"
       >
+        <form id="password-form" class="flex flex-col w-full">
+          <div class="flex flex-col gap-2">
+            <label
+              for="master-pass"
+              class="text-white/60 mb-2 text-sm tracking-tight"
+            >
+              Enter your password
+            </label>
+            <input
+              type="password"
+              id="master-pass"
+              name="master-pass"
+              required
+              class="border border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+            />
 
-      <!-- Tabla para mostrar los datos -->
-      <table
-        id="passwordsTable"
-        style="display: none; width: 100%; border-collapse: collapse;"
+            <label
+              class="text-sm text-white/60 font-medium leading-none mb-2"
+              for="passfile"
+            >
+              Passwords File
+            </label>
+            <input
+              id="passfile"
+              type="file"
+              required
+              class="cursor-pointer h-10 w-full rounded-md border border-white/15 border-dashed bg-[#1c1c1c] outline-none px-3 py-2 text-sm text-white/60 file:border-0 file:bg-transparent file:text-white file:text-sm file:font-medium"
+            />
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              type="submit"
+              class="text-white/85 bg-green rounded-[0.3rem] border border-primary tracking-wide py-1 px-5 mt-4 text-sm hover:bg-green-light transition-colors"
+            >
+              Load
+            </button>
+            <button
+              type="button"
+              id="cancel-dialog-btn"
+              class="text-white/85 bg-red-500 rounded-[0.3rem] border border-red-400 tracking-wide py-1 px-5 mt-4 text-sm hover:bg-red-400 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- dialog for New Password Creation -->
+      <dialog
+        id="new-password-dialog"
+        class="absolute top-[50%] py-4 px-4 left-[50%] backdrop:bg-background/80 backdrop:filter backdrop:backdrop-blur-sm justify-enter items-center translate-y-[-50%] translate-x-[-50%] bg-background-light border border-white/20 w-[35rem] rounded-md"
       >
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Site Name</th>
-            <th>Username</th>
-            <th>Password</th>
-            <th>URL</th>
-            <th>Notes</th>
-            <th>Tags</th>
-            <th>Creation Date</th>
-            <th>Update Date</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </form>
+        <form id="new-password-form" class="flex flex-col w-full">
+          <div class="flex flex-col gap-2">
+            <div class="flex gap-4">
+              <div>
+                <label
+                  for="site-name"
+                  class="text-white/60 mb-1 text-sm tracking-tight"
+                >
+                  Enter site name
+                </label>
+                <input
+                  type="text"
+                  id="site-name"
+                  name="site-name"
+                  required
+                  class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+                />
+              </div>
+              <div>
+                <label
+                  for="username"
+                  class="text-white/60 mb-1 text-sm tracking-tight"
+                >
+                  Enter username
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  required
+                  class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+                />
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <div>
+                <label
+                  for="site-password"
+                  class="text-white/60 mb-1 text-sm tracking-tight"
+                >
+                  Enter password
+                </label>
+                <input
+                  type="password"
+                  id="site-password"
+                  name="site-password"
+                  required
+                  class="border border-white/20 w-full bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+                />
+              </div>
+              <div>
+                <label
+                  for="url"
+                  class="text-white/60 mb-1 text-sm tracking-tight"
+                >
+                  Enter site url
+                </label>
+                <input
+                  type="url"
+                  id="url"
+                  name="url"
+                  required
+                  class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+                />
+              </div>
+            </div>
+
+            <label
+              for="notes"
+              class="text-white/60 mb-1 text-sm tracking-tight"
+            >
+              Enter notes
+            </label>
+            <textarea
+              id="notes"
+              name="notes"
+              required
+              class="border w-full resize-none border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+            ></textarea>
+
+            <div class="flex gap-4 w-full">
+              <div class="flex flex-col w-full">
+                <label
+                  for="tags"
+                  class="text-white/60 text-sm mb-1 tracking-tight"
+                >
+                  Tags (separated by comma).
+                </label>
+                <input
+                  type="text"
+                  id="tags"
+                  name="tags"
+                  required
+                  class="border w-full border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+                />
+                <span class="text-white/30 mb-1 text-sm tracking-tight">
+                  e.g. work, favsite, mail
+                </span>
+              </div>
+              <div class="flex flex-col w-full">
+                <label
+                  for="extra-fields"
+                  class="text-white/60 text-sm mb-1 tracking-tight"
+                >
+                  Extra-fields (separated by comma).
+                </label>
+                <input
+                  type="text"
+                  id="extra-fields"
+                  name="extra-fields"
+                  required
+                  class="border w-full border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+                />
+                <span class="text-white/30 mb-1 text-sm tracking-tight">
+                  e.g. field1, field2, field3
+                </span>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <label
+                class="text-sm text-white/60 font-medium leading-none mb-2 mt-2"
+                for="checked-passfile"
+              >
+              Is your passwords file encrypted?
+              </label>
+              <input
+                id="checked-passfile"
+                type="checkbox"
+                name="checked-passfile"
+                class="outline-none"
+              />
+            </div>
+
+            <label
+            for="new-master-pass"
+            class="text-white/60 mb-1 text-sm tracking-tight"
+          >
+            Enter master password
+          </label>
+          <input
+            type="password"
+            id="new-master-pass"
+            name="new-master-pass"
+            required
+            class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+          />
+
+            <label
+              class="text-sm text-white/60 font-medium leading-none mb-2 mt-2"
+              for="edit-passfile"
+            >
+              Passwords File
+            </label>
+            <input
+              id="edit-passfile"
+              name="edit-passfile"
+              type="file"
+              required
+              class="cursor-pointer h-10 w-full rounded-md border border-white/15 border-dashed bg-[#1c1c1c] outline-none px-3 py-2 text-sm text-white/60 file:border-0 file:bg-transparent file:text-white file:text-sm file:font-medium"
+            />
+          </div>
+          <div class="flex gap-2">
+            <button
+              type="submit"
+              class="text-white/85 bg-green rounded-[0.3rem] border border-primary tracking-wide py-1 px-5 mt-4 text-sm hover:bg-green-light transition-colors"
+            >
+              Load
+            </button>
+            <button
+              type="button"
+              id="new-cancel-dialog-btn"
+              class="text-white/85 bg-red-500 rounded-[0.3rem] border border-red-400 tracking-wide py-1 px-5 mt-4 text-sm hover:bg-red-400 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </dialog>
+    </section>
   </main>
+</DashLayout>
+<script>
+  const dialog = document.getElementById(
+    "password-dialog"
+  ) as HTMLDialogElement;
 
-  <script>
+  const newPasswordDialog = document.getElementById(
+    "new-password-dialog"
+  ) as HTMLDialogElement;
 
-    document
-      .querySelector("[load-passwords-button]")
-      .addEventListener("click", () => loadPasswords());
-    
-    async function loadPasswords() {
-      const masterPassword = prompt("Enter your master password:");
+  const openDialogBtn = document.getElementById("open-dialog-btn");
+  const newPasswordBtn = document.getElementById("new-password-btn");
+  const cancelDialogBtn = document.getElementById("cancel-dialog-btn");
+  const newPasswordCancelBtn = document.getElementById("new-cancel-dialog-btn");
+  const passwordForm = document.getElementById("password-form");
 
-      if (!masterPassword) return alert("Master password is required");
+  openDialogBtn.addEventListener("click", () => dialog.showModal());
+  cancelDialogBtn.addEventListener("click", () => dialog.close());
 
-      try {
-        const response = await fetch("/api/loadPasswords", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ master_password: masterPassword }),
-        });
+  newPasswordBtn.addEventListener("click", () => newPasswordDialog.showModal());
+  newPasswordCancelBtn.addEventListener("click", () => newPasswordDialog.close());
 
-        if (!response.ok) {
-          const error = await response.json();
-          return alert("Error: " + error.error);
-        }
+  passwordForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const masterPassword = (document.getElementById("master-pass") as HTMLInputElement).value;
+    const passFile = (document.getElementById("passfile") as HTMLInputElement).files[0];
+    if (!masterPassword || !passFile) return alert("All fields are required");
 
-        const data = await response.json();
-        const table = document.getElementById("passwordsTable");
-        const tbody = table.querySelector("tbody");
+    const formData = new FormData();
+    formData.append("master_password", masterPassword);
+    formData.append("file", passFile);
 
-        tbody.innerHTML = "";
+    dialog.close();
 
-        data.entries.forEach((entry) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${entry.id}</td>
-            <td>${entry.site_name}</td>
-            <td>${entry.username}</td>
-            <td>${entry.password}</td>
-            <td><a href="${entry.url}" target="_blank">${entry.url}</a></td>
-            <td>${entry.notes}</td>
-            <td>${entry.tags.join(", ")}</td>
-            <td>${new Date(entry.creation_date).toLocaleString()}</td>
-            <td>${new Date(entry.update_date).toLocaleString()}</td>
-          `;
-          tbody.appendChild(row);
-        });
+    try {
+      const response = await fetch("/api/loadPasswords", {
+        method: "POST",
+        body: formData,
+      });
 
-        table.style.display = "table";
-      } catch (error) {
-        console.error("Error loading passwords:", error);
-        alert("Failed to load passwords.");
+      if (!response.ok) {
+        const error = await response.json();
+        return alert("Error: " + error.error);
       }
+
+      const data = await response.json();
+      
+      renderPasswords(data.entries);
+    } catch (error) {
+      console.error("Error loading passwords:", error);
+      alert("Failed to load passwords.");
+    }
+  });
+
+  function renderPasswords(entries) {
+    const container = document.getElementById("passwords-container");
+    container.innerHTML = "";
+
+    entries.forEach((entry) => {
+      const passwordComponent = createPasswordComponent(entry);
+      container.appendChild(passwordComponent);
+    });
+  }
+
+  function createPasswordComponent(entry) {
+    const container = document.createElement("div");
+    container.classList.add(
+      "w-full",
+      "bg-green-light/10",
+      "border",
+      "border-primary/40",
+      "px-2",
+      "py-2",
+      "flex",
+      "items-center",
+      "gap-2",
+      "rounded-md"
+    );
+
+    const img = document.createElement("img");
+    img.src = "web.svg";
+    img.alt = "internet icon";
+    img.width = 30;
+
+    const innerDiv = document.createElement("div");
+    innerDiv.classList.add("flex", "flex-col");
+
+    const siteNameSpan = document.createElement("span");
+    siteNameSpan.classList.add("text-white", "font-normal", "text-sm");
+    siteNameSpan.textContent = entry.site_name;
+
+    const usernameSpan = document.createElement("span");
+    usernameSpan.classList.add("text-white/50", "font-normal", "text-sm");
+    usernameSpan.textContent = entry.username;
+
+    const urlLink = document.createElement("a");
+    urlLink.href = entry.url;
+    urlLink.target = "_blank";
+    urlLink.classList.add("text-blue-400", "underline", "text-xs");
+    urlLink.textContent = entry.url;
+
+    innerDiv.appendChild(siteNameSpan);
+    innerDiv.appendChild(usernameSpan);
+    innerDiv.appendChild(urlLink);
+
+    container.appendChild(img);
+    container.appendChild(innerDiv);
+
+    return container;
+  }
+
+
+  document
+  .getElementById('new-password-form')
+  .addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formElement = event.target as HTMLFormElement;
+    const formData = new FormData(formElement);
+
+    const isEncrypted = (document.getElementById('checked-passfile') as HTMLInputElement).checked;
+    formData.append('is_encrypted', isEncrypted.toString());
+
+    const extraFieldsInput = formData.get('extra-fields').toString();
+    const extraFields = extraFieldsInput.split(',').map((field) => field.trim());
+
+    if (extraFields.length > 5) {
+      alert('Please enter a maximum of 5 extra fields.');
+      return;
     }
 
-    document
-      .querySelector("[add-password-form]")
-      .addEventListener("submit", (e) => addPassword(e));
+    extraFields.forEach((field, index) => {
+      formData.append(`extra_field_${index + 1}`, field);
+    });
 
-    async function addPassword(event) {
-      event.preventDefault();
+    const tagsInput = formData.get('tags').toString();
+    const tags = tagsInput.split(',').map((tag) => tag.trim());
+    tags.forEach((tag) => {
+      formData.append('tags[]', tag);
+    });
 
-      const formData = new FormData(
-        document.querySelector("[add-password-form]") as HTMLFormElement
-      );
-      const data = {
-        site_name: formData.get("site_name"),
-        username: formData.get("username"),
-        password: formData.get("password"),
-        url: formData.get("url"),
-        notes: formData.get("notes"),
-        tags: formData.get("tags")
-          ? (formData.get("tags") as string).split(",").map((tag) => tag.trim())
-          : [],
-        master_password: formData.get("master_password"),
-      };
-      try {
-        const response = await fetch("/api/addPassword", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
+    formData.delete('extra-fields');
+    formData.delete('tags');
 
-        if (response.ok) {
-          alert("Password added successfully!");
-          (
-            document.querySelector("[add-password-form]") as HTMLFormElement
-          ).reset();
-        } else {
-          const error = await response.json();
-          alert(`Error: ${error.message}`);
-        }
-      } catch (error) {
-        console.error("Error adding password:", error);
-        alert("Failed to add password. Please try again.");
+
+    console.log("formdata :", formData )
+
+    try {
+      const response = await fetch('/api/addPassword', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(`Error: ${error.message}`);
+      } else {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'updated_passwords.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        alert('Password added successfully and file downloaded!');
+        formElement.reset();
       }
+    } catch (error) {
+      console.error('Error adding password:', error);
+      alert('Failed to add password.');
     }
-  </script>
-</Layout>
+  });
+
+
+</script>
