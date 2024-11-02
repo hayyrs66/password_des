@@ -1,21 +1,51 @@
 ---
+import { isLoggedIn } from "../utils/isLoggedIn";
 
+const cookie = Astro.request.headers.get("cookie");
+const session = isLoggedIn(cookie);
+const currentPath = Astro.url.pathname;
+
+console.log(session);
 ---
-
 <header
   class="w-full flex justify-between items-center px-10 py-5 fixed top-0 left-0 z-10"
 >
   <div class="flex items-center gap-2">
-    <img src="favicon.svg" alt="keypass" width="50" />
-    <h1 class="text-3xl tracking-tighter font-medium text-white/85">KeePass</h1>
+    <img src="favicon.svg" alt="keypass" width="40" />
+    <a href="/" class="text-2xl tracking-tighter font-medium text-white/85"
+      >KeePass</a
+    >
   </div>
   <div>
-    <a
-      href="#"
-      class="text-white/85 bg-green px-4 rounded-[0.3rem] border border-primary tracking-wide py-1 text-sm login hover:bg-green-light transition-colors"
-      >Login</a
-    >
-    <!-- <button logout-button>Cerrar sesión</button> -->
+    {
+      session && (
+        <div class="flex gap-2 items-center">
+          <a
+            href="dashboard"
+            class="text-white/85 bg-[#242424] px-4 rounded-[0.3rem] border border-white/20 tracking-wide py-0.5 text-sm login hover:bg-[#313131] transition-colors"
+          >
+            Dashboard
+          </a>
+          <button
+            class="text-white/85 bg-green px-4 rounded-[0.3rem] border border-primary tracking-wide py-0.5 text-sm login hover:bg-green-light transition-colors"
+            logout-button
+          >
+            Logout
+          </button>
+        </div>
+      )
+    }
+    {
+      !session && !currentPath.includes("login") && (
+        <a
+          href="login"
+          class="text-white/85 bg-green px-4 rounded-[0.3rem] border border-primary tracking-wide py-1 text-sm login hover:bg-green-light transition-colors"
+        >
+          Login
+        </a>
+      )
+    }
+    <!-- <button>Cerrar sesión</button> -->
   </div>
 </header>
 
