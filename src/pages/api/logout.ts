@@ -8,7 +8,7 @@ export const GET: APIRoute = async ({ cookies }) => {
   return new Response(null, {
     status: 302,
     headers: {
-      Location: "/login",
+      Location: "/",
     },
   });
 };
