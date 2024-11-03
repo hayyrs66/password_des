@@ -59,35 +59,53 @@ if (!isLoggedIn(cookie)) {
             >
               New Passwords
             </button>
-            <div class="flex items-center gap-2">
-              <select
-                id="search-field"
-                class="bg-[#1c1c1c] border border-white/20 text-white/85 h-full text-sm rounded-md py-2 px-3 outline-none"
-              >
-                <option value="site_name">Site Name</option>
-                <option value="username">Username</option>
-                <option value="url">URL</option>
-                <option value="notes">Notes</option>
-                <option value="tags">Tags</option>
-                <option value="extra_fields">Extra Fields</option>
-              </select>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <select
+              id="search-field"
+              class="bg-[#1c1c1c] border border-white/20 text-white/85 h-full text-sm rounded-md py-2 px-3 outline-none"
+            >
+              <option value="site_name">Site Name</option>
+              <option value="username">Username</option>
+              <option value="url">URL</option>
+              <option value="notes">Notes</option>
+              <option value="tags">Tags</option>
+              <option value="extra_fields">Extra Fields</option>
+            </select>
 
+            <div
+              class="border border-white/20 bg-[#1c1c1c] h-full flex rounded-md"
+            >
               <div
-                class="border border-white/20 bg-[#1c1c1c] h-full flex rounded-md"
+                class="bg-white/20 rounded-l-md min-w-10 flex items-center justify-center"
               >
-                <div
-                  class="bg-white/20 h-full rounded-l-md min-w-10 flex items-center justify-center"
-                >
-                  <img src="search.svg" alt="search icon" width="20" />
-                </div>
-                <input
-                  type="search"
-                  id="search-input"
-                  placeholder="Search..."
-                  class="bg-[#1c1c1c] text-white/85 text-sm py-2 px-3 outline-none"
-                />
+                <img src="search.svg" alt="search icon" width="20" />
               </div>
+              <input
+                type="search"
+                id="search-input"
+                placeholder="Search..."
+                class="bg-[#1c1c1c] max-w-48 rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
             </div>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <button
+              id="import-plain-btn"
+              class="text-white/85 bg-[#242424] px-4 rounded-[0.3rem] outline-none border border-white/20 tracking-wide py-0.5 text-sm login hover:bg-[#313131] transition-colors"
+            >
+              <div class="flex gap-1">
+                <span>Import plain</span>
+              </div>
+            </button>
+            <button
+              id="export-plain-btn"
+              class="text-white/85 bg-[#242424] px-4 rounded-[0.3rem] outline-none border border-white/20 tracking-wide py-0.5 text-sm login hover:bg-[#313131] transition-colors"
+            >
+              <div class="flex gap-1">
+                <span>Export plain</span>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -208,66 +226,81 @@ if (!isLoggedIn(cookie)) {
       </form>
     </dialog>
 
-    <!-- Dialog for Adding New Password -->
     <dialog
       id="new-password-dialog"
       class="absolute top-[50%] py-4 px-4 left-[50%] backdrop:bg-background/80 backdrop:filter backdrop:backdrop-blur-sm justify-enter items-center translate-y-[-50%] translate-x-[-50%] bg-background-light border border-white/20 w-[35rem] rounded-md"
     >
       <form id="new-password-form" class="flex flex-col w-full">
         <div class="flex flex-col gap-2">
-          <label
-            for="site-name"
-            class="text-white/60 mb-1 text-sm tracking-tight"
-            >Enter site name</label
-          >
-          <input
-            type="text"
-            id="site-name"
-            name="site-name"
-            required
-            class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
-          />
+          <div class="flex gap-4">
+            <div>
+              <label
+                for="site-name"
+                class="text-white/60 mb-1 text-sm tracking-tight"
+              >
+                Enter site name
+              </label>
+              <input
+                type="text"
+                id="site-name"
+                name="site-name"
+                required
+                class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+            </div>
+            <div>
+              <label
+                for="username"
+                class="text-white/60 mb-1 text-sm tracking-tight"
+              >
+                Enter username
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+            </div>
+          </div>
 
-          <label
-            for="username"
-            class="text-white/60 mb-1 text-sm tracking-tight"
-            >Enter username</label
-          >
-          <input
-            type="text"
-            id="username"
-            name="username"
-            required
-            class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
-          />
+          <div class="flex gap-4">
+            <div>
+              <label
+                for="site-password"
+                class="text-white/60 mb-1 text-sm tracking-tight"
+              >
+                Enter password
+              </label>
+              <input
+                type="password"
+                id="site-password"
+                name="site-password"
+                required
+                class="border border-white/20 w-full bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+            </div>
+            <div>
+              <label
+                for="url"
+                class="text-white/60 mb-1 text-sm tracking-tight"
+              >
+                Enter site url
+              </label>
+              <input
+                type="url"
+                id="url"
+                name="url"
+                required
+                class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+            </div>
+          </div>
 
-          <label
-            for="site-password"
-            class="text-white/60 mb-1 text-sm tracking-tight"
-            >Enter password</label
-          >
-          <input
-            type="password"
-            id="site-password"
-            name="site-password"
-            required
-            class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
-          />
-
-          <label for="url" class="text-white/60 mb-1 text-sm tracking-tight"
-            >Enter site url</label
-          >
-          <input
-            type="url"
-            id="url"
-            name="url"
-            required
-            class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
-          />
-
-          <label for="notes" class="text-white/60 mb-1 text-sm tracking-tight"
-            >Enter notes</label
-          >
+          <label for="notes" class="text-white/60 mb-1 text-sm tracking-tight">
+            Enter notes
+          </label>
           <textarea
             id="notes"
             name="notes"
@@ -275,37 +308,44 @@ if (!isLoggedIn(cookie)) {
             class="border w-full resize-none border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
           ></textarea>
 
-          <label for="tags" class="text-white/60 mb-1 text-sm tracking-tight"
-            >Tags (separated by commas)</label
-          >
-          <input
-            type="text"
-            id="tags"
-            name="tags"
-            required
-            class="border w-full border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
-          />
-
-          <label
-            for="extra-fields"
-            class="text-white/60 mb-1 text-sm tracking-tight"
-            >Extra fields (comma-separated)</label
-          >
-          <input
-            type="text"
-            id="extra-fields"
-            name="extra-fields"
-            required
-            class="border w-full border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
-          />
-
-          <label
-            class="text-sm text-white/60 font-medium leading-none mb-2 mt-2"
-          >
-            Is your passwords file encrypted?
-          </label>
-          <input id="checked-passfile" type="checkbox" class="outline-none" />
-
+          <div class="flex gap-4 w-full">
+            <div class="flex flex-col w-full">
+              <label
+                for="tags"
+                class="text-white/60 text-sm mb-1 tracking-tight"
+              >
+                Tags (separated by comma).
+              </label>
+              <input
+                type="text"
+                id="tags"
+                name="tags"
+                required
+                class="border w-full border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+              <span class="text-white/30 mb-1 text-sm tracking-tight">
+                e.g. work, favsite, mail
+              </span>
+            </div>
+            <div class="flex flex-col w-full">
+              <label
+                for="extra-fields"
+                class="text-white/60 text-sm mb-1 tracking-tight"
+              >
+                Extra-fields (separated by comma).
+              </label>
+              <input
+                type="text"
+                id="extra-fields"
+                name="extra-fields"
+                required
+                class="border w-full border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+              <span class="text-white/30 mb-1 text-sm tracking-tight">
+                e.g. field1, field2, field3
+              </span>
+            </div>
+          </div>
           <label
             for="new-master-pass"
             class="text-white/60 mb-1 text-sm tracking-tight"
@@ -319,44 +359,30 @@ if (!isLoggedIn(cookie)) {
             required
             class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
           />
-
           <div class="flex gap-5">
-            <!-- <label
-              class="text-sm text-white/60 font-medium leading-none mb-2 mt-2"
-              for="edit-passfile"
-            >
-              Passwords File
-            </label>
-            <input
-              id="edit-passfile"
-              name="edit-passfile"
-              type="file"
-              required
-              class="cursor-pointer h-10 w-full rounded-md border border-white/15 border-dashed bg-[#1c1c1c] outline-none px-3 py-2 text-sm text-white/60"
-            /> -->
-
-            <label
-              class="text-sm text-white/60 font-medium leading-none mb-2 mt-2"
-              for="edit-icon-file"
-            >
-              Icon file
-            </label>
-            <input
-              id="edit-icon-file"
-              name="edit-icon-file"
-              type="file"
-              required
-              class="cursor-pointer h-10 w-full rounded-md border border-white/15 border-dashed bg-[#1c1c1c] outline-none px-3 py-2 text-sm text-white/60"
-            />
+            <div class="w-full">
+              <label
+                class="text-sm text-white/60 font-medium leading-none mb-2 mt-2"
+                for="edit-icon-file"
+              >
+                Icon file
+              </label>
+              <input
+                id="edit-icon-file"
+                name="edit-icon-file"
+                type="file"
+                required
+                class="cursor-pointer h-10 w-full rounded-md border border-white/15 border-dashed bg-[#1c1c1c] outline-none px-3 py-2 text-sm text-white/60 file:border-0 file:bg-transparent file:text-white file:text-sm file:font-medium"
+              />
+            </div>
           </div>
         </div>
-
         <div class="flex gap-2">
           <button
             type="submit"
             class="text-white/85 bg-green rounded-[0.3rem] border border-primary tracking-wide py-1 px-5 mt-4 text-sm hover:bg-green-light transition-colors"
           >
-            Add Password
+            Load
           </button>
           <button
             type="button"
@@ -368,425 +394,493 @@ if (!isLoggedIn(cookie)) {
         </div>
       </form>
     </dialog>
-
-    <!-- Dialog for Editing a Password -->
-    <dialog id="edit-password-dialog" class="edit-dialog">
-      <form id="edit-password-form" class="flex flex-col gap-4">
-        <label for="field-to-edit">Choose field to edit:</label>
-        <select id="field-to-edit" name="field-to-edit" required>
-          <option value="site_name">Site Name</option>
-          <option value="username">Username</option>
-          <option value="password">Password</option>
-          <option value="url">URL</option>
-          <option value="notes">Notes</option>
-          <option value="tags">Tags (comma-separated)</option>
-          <option value="extra_fields">Extra Fields (comma-separated)</option>
-        </select>
-
-        <label for="new-value">Enter new value:</label>
-        <input type="text" id="new-value" name="new-value" required />
-
-        <div class="flex gap-2">
-          <button
-            type="submit"
-            class="text-white/85 bg-green rounded-[0.3rem] border border-primary tracking-wide py-1 px-5 text-sm hover:bg-green-light transition-colors"
-          >
-            Save Changes
-          </button>
-          <button
-            type="button"
-            onclick="document.getElementById('edit-password-dialog').close();"
-            class="text-white/85 bg-red-500 rounded-[0.3rem] border border-red-400 tracking-wide py-1 px-5 text-sm hover:bg-red-400 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </dialog>
   </main>
+</DashLayout>
 
-  <script>
-    // Global variables
-    let fileHandle;
-    let passwords = [];
-    let passwordFileData = null;
-    let passwordFileName = "";
+<script>
+  // Global variables
+  let fileHandle;
+  let passwords = [];
+  let passwordFileData = null;
+  let passwordFileName = "";
 
-    // Function to load file content as ArrayBuffer
-    async function loadFileContent() {
-      if (!fileHandle) {
-        alert("No file selected. Please select a file first.");
-        return null;
-      }
-      const file = await fileHandle.getFile();
-      return await file.arrayBuffer();
+  // Function to load file content as ArrayBuffer
+  async function loadFileContent() {
+    if (!fileHandle) {
+      alert("No file selected. Please select a file first.");
+      return null;
     }
+    const file = await fileHandle.getFile();
+    return await file.arrayBuffer();
+  }
 
-    // Function to overwrite the selected file with new data
-    async function overwriteFile(data) {
+  // Function to overwrite the selected file with new data
+  async function overwriteFile(data) {
+    if (!fileHandle) {
+      alert("No file selected.");
+      return;
+    }
+    try {
+      const writableStream = await fileHandle.createWritable();
+      await writableStream.write(data);
+      await writableStream.close();
+      console.log("File overwritten successfully!");
+    } catch (error) {
+      console.error("Error overwriting file:", error);
+      alert("Failed to overwrite the file.");
+    }
+  }
+
+  // Dialog: Load Passwords
+  document.getElementById("open-dialog-btn").addEventListener("click", () => {
+    document.getElementById("password-dialog").showModal();
+  });
+
+  document
+    .getElementById("cancel-password-dialog-btn")
+    .addEventListener("click", () => {
+      document.getElementById("password-dialog").close();
+    });
+
+  document
+    .getElementById("select-password-file")
+    .addEventListener("click", async () => {
+      try {
+        [fileHandle] = await window.showOpenFilePicker({
+          types: [
+            {
+              description: "Encrypted JSON",
+              accept: { "application/json": [".json.enc"] },
+            },
+          ],
+        });
+        document.getElementById("selected-file-name").textContent =
+          fileHandle.name;
+        alert("File selected successfully.");
+      } catch (error) {
+        console.error("File selection failed:", error);
+      }
+    });
+
+  document
+    .getElementById("password-form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const masterPassword = document.getElementById("master-pass").value;
+
+      if (!masterPassword || !fileHandle) {
+        return alert("All fields are required, including selecting a file.");
+      }
+
+      try {
+        const file = await fileHandle.getFile();
+        const arrayBuffer = await file.arrayBuffer();
+
+        // Store the file data and name in memory
+        passwordFileData = arrayBuffer;
+        passwordFileName = file.name;
+
+        const formData = new FormData();
+        formData.append("master_password", masterPassword);
+        formData.append("file", new Blob([passwordFileData]));
+
+        const response = await fetch("/api/loadPasswords", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error response data:", errorData);
+          alert(`Error: ${errorData.error || "Unknown error"}`);
+        } else {
+          const result = await response.json();
+          passwords = result.entries;
+          renderPasswords(passwords);
+          document.getElementById("password-dialog").close();
+        }
+      } catch (error) {
+        console.error("Error loading passwords:", error);
+        alert("Failed to load passwords.");
+      }
+    });
+
+  // Dialog: Change Master Password
+  document
+    .getElementById("change-password-button")
+    .addEventListener("click", () => {
       if (!fileHandle) {
-        alert("No file selected.");
+        alert("Please load your passwords file first.");
         return;
       }
-      try {
-        const writableStream = await fileHandle.createWritable();
-        await writableStream.write(data);
-        await writableStream.close();
-        console.log("File overwritten successfully!");
-      } catch (error) {
-        console.error("Error overwriting file:", error);
-        alert("Failed to overwrite the file.");
-      }
-    }
-
-    // Dialog: Load Passwords
-    document.getElementById("open-dialog-btn").addEventListener("click", () => {
-      document.getElementById("password-dialog").showModal();
+      document.getElementById("change-password-dialog").showModal();
     });
 
-    document
-      .getElementById("cancel-password-dialog-btn")
-      .addEventListener("click", () => {
-        document.getElementById("password-dialog").close();
-      });
+  document
+    .getElementById("cancel-change-password-dialog-btn")
+    .addEventListener("click", () => {
+      document.getElementById("change-password-dialog").close();
+    });
 
-    document
-      .getElementById("select-password-file")
-      .addEventListener("click", async () => {
-        try {
-          [fileHandle] = await window.showOpenFilePicker({
-            types: [
-              {
-                description: "Encrypted JSON",
-                accept: { "application/json": [".json.enc"] },
-              },
-            ],
-          });
-          document.getElementById("selected-file-name").textContent =
-            fileHandle.name;
-          alert("File selected successfully.");
-        } catch (error) {
-          console.error("File selection failed:", error);
+  document
+    .getElementById("change-password-form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const oldPassword = document.getElementById("change-master-pass").value;
+      const newPassword = document.getElementById(
+        "change-new-master-pass"
+      ).value;
+
+      if (!oldPassword || !newPassword || !fileHandle) {
+        return alert("All fields are required, including loading a file.");
+      }
+
+      try {
+        const file = await fileHandle.getFile();
+
+        const formData = new FormData();
+        formData.append("old_password", oldPassword);
+        formData.append("new_password", newPassword);
+        formData.append("file", file);
+
+        const response = await fetch("/api/changePassword", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(`Error: ${error.message}`);
+        } else {
+          const newEncryptedData = await response.arrayBuffer();
+          passwordFileData = newEncryptedData; // Update stored data
+
+          await overwriteFile(newEncryptedData);
+          alert("Password changed successfully!");
+          document.getElementById("change-password-dialog").close();
         }
-      });
+      } catch (error) {
+        console.error("Error changing password:", error);
+        alert("Failed to change password.");
+      }
+    });
 
-    document
-      .getElementById("password-form")
-      .addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const masterPassword = document.getElementById("master-pass").value;
+  // Dialog: New Password
+  document.getElementById("new-password-btn").addEventListener("click", () => {
+    if (!fileHandle) {
+      alert("Please load your passwords file first.");
+      return;
+    }
+    document.getElementById("new-password-dialog").showModal();
+  });
 
-        if (!masterPassword || !fileHandle) {
-          return alert("All fields are required, including selecting a file.");
+  document
+    .getElementById("cancel-new-password-dialog-btn")
+    .addEventListener("click", () => {
+      document.getElementById("new-password-dialog").close();
+    });
+
+  document
+    .getElementById("new-password-form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formElement = event.target;
+      const formData = new FormData(formElement);
+
+      // Check if the password file has been loaded and stored in memory
+      if (!passwordFileData || !fileHandle) {
+        return alert("Please load your passwords file first.");
+      }
+      // Process extra fields and append them to FormData
+      const extraFieldsInput = formData.get("extra-fields").toString();
+      extraFieldsInput
+        .split(",")
+        .map((field) => field.trim())
+        .forEach((field, index) => {
+          formData.append(`extra_field_${index + 1}`, field);
+        });
+
+      // Process tags and append them to FormData
+      const tagsInput = formData.get("tags").toString();
+      tagsInput
+        .split(",")
+        .map((tag) => tag.trim())
+        .forEach((tag) => {
+          formData.append("tags[]", tag);
+        });
+
+      // Append the stored password file data
+      formData.append(
+        "edit-passfile",
+        new Blob([passwordFileData]),
+        passwordFileName
+      );
+
+      // Append the icon file if present
+      const iconFile = document.getElementById("edit-icon-file").files[0];
+      if (iconFile) formData.append("icon_file", iconFile);
+
+      try {
+        // Send the data to the server
+        const response = await fetch("/api/addPassword", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(`Error: ${error.message}`);
+        } else {
+          // Update password file data in memory with the new file content
+          const updatedFileData = await response.arrayBuffer();
+          passwordFileData = updatedFileData; // Update stored data
+
+          // Overwrite the file directly using the File System Access API
+          await overwriteFile(updatedFileData);
+
+          alert("Password added successfully and file updated!");
+          formElement.reset();
+          document.getElementById("new-password-dialog").close();
         }
+      } catch (error) {
+        console.error("Error adding password:", error);
+        alert("Failed to add password.");
+      }
+    });
 
-        try {
-          const file = await fileHandle.getFile();
-          const arrayBuffer = await file.arrayBuffer();
+  function renderPasswords(entries) {
+    const container = document.getElementById("passwords-container");
+    container.innerHTML = "";
+    entries.forEach((entry) => {
+      const passwordComponent = createPasswordComponent(entry);
+      container.appendChild(passwordComponent);
+    });
+  }
 
-          // Store the file data and name in memory
-          passwordFileData = arrayBuffer;
-          passwordFileName = file.name;
+  function createPasswordComponent(entry) {
+    const container = document.createElement("div");
+    container.classList.add(
+      "w-full",
+      "rounded-md",
+      "bg-background-light",
+      "border",
+      "border-white/40",
+      "px-2",
+      "py-2"
+    );
 
-          const formData = new FormData();
-          formData.append("master_password", masterPassword);
-          formData.append("file", new Blob([passwordFileData]));
+    const header = document.createElement("div");
+    header.classList.add(
+      "w-full",
+      "flex",
+      "justify-between",
+      "items-center",
+      "gap-2"
+    );
 
-          const response = await fetch("/api/loadPasswords", {
-            method: "POST",
-            body: formData,
-          });
+    // Detalles del sitio (sin contenedor de ícono)
+    const detailsContainer = document.createElement("div");
+    detailsContainer.classList.add("flex", "flex-col");
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Error response data:", errorData);
-            alert(`Error: ${errorData.error || "Unknown error"}`);
-          } else {
-            const result = await response.json();
-            passwords = result.entries;
-            renderPasswords(passwords);
-            document.getElementById("password-dialog").close();
-          }
-        } catch (error) {
-          console.error("Error loading passwords:", error);
-          alert("Failed to load passwords.");
+    const siteName = document.createElement("span");
+    siteName.classList.add("text-white", "font-normal", "text-sm");
+    siteName.textContent = entry.site_name;
+
+    const username = document.createElement("span");
+    username.classList.add("text-white/50", "font-normal", "text-sm");
+    username.textContent = entry.username;
+
+    const notes = document.createElement("p");
+    notes.classList.add(
+      "text-white/85",
+      "font-normal",
+      "max-w-3xl",
+      "text-pretty",
+      "mt-1",
+      "text-sm"
+    );
+    notes.textContent = entry.notes;
+
+    detailsContainer.appendChild(siteName);
+    detailsContainer.appendChild(username);
+    detailsContainer.appendChild(notes);
+
+    // Contenedor de acciones (incluye botón de enlace, copiar y editar)
+    const actionContainer = document.createElement("div");
+    actionContainer.classList.add("flex", "gap-2");
+
+    // Botón de enlace con ícono del sitio (o ícono predeterminado si no existe)
+    const linkBtn = document.createElement("a");
+    linkBtn.href = entry.url;
+    linkBtn.target = "_blank";
+
+    const linkIcon = document.createElement("img");
+    linkIcon.src = entry.icon ? entry.icon : "web.svg";
+    linkIcon.alt = "Site icon";
+    linkIcon.width = 30;
+    linkIcon.classList.add("w-[30px]", "h-full", "object-contain");
+
+    // Cambia al ícono predeterminado si el ícono especificado no se encuentra
+    linkIcon.onerror = () => {
+      linkIcon.src = "web.svg";
+    };
+
+    linkBtn.appendChild(linkIcon);
+
+    // Botón de copiar contraseña
+    const copyBtn = document.createElement("button");
+    copyBtn.innerHTML =
+      '<img width="25" src="key.svg" alt="copy password icon" />';
+    copyBtn.addEventListener("click", () =>
+      copyPasswordToClipboard(entry.password)
+    );
+
+    // Botón de editar
+    const editBtn = document.createElement("button");
+    editBtn.innerHTML = '<img src="pen.svg" alt="edit icon" width="25" />';
+    editBtn.addEventListener("click", () => openEditDialog(entry.id));
+
+    // Agregar botones de acción al contenedor
+    actionContainer.appendChild(linkBtn);
+    actionContainer.appendChild(copyBtn);
+    actionContainer.appendChild(editBtn);
+
+    header.appendChild(detailsContainer);
+    header.appendChild(actionContainer);
+
+    // Extra fields section
+    const extraFieldsContainer = document.createElement("div");
+    extraFieldsContainer.classList.add("flex", "flex-col", "mt-2");
+
+    const extraFieldsTitle = document.createElement("h3");
+    extraFieldsTitle.classList.add("text-primary", "font-normal", "text-sm");
+    extraFieldsTitle.textContent = "Extra fields";
+
+    const extraFieldsList = document.createElement("div");
+    extraFieldsList.classList.add("flex", "flex-col");
+
+    if (typeof entry.extra_fields === "object" && entry.extra_fields !== null) {
+      Object.entries(entry.extra_fields).forEach(([key, value]) => {
+        if (value) {
+          const fieldSpan = document.createElement("span");
+          fieldSpan.classList.add("text-white/50", "font-normal", "text-sm");
+          fieldSpan.textContent = `- ${key}: ${value}`;
+          extraFieldsList.appendChild(fieldSpan);
         }
-      });
-
-    // Dialog: Change Master Password
-    document
-      .getElementById("change-password-button")
-      .addEventListener("click", () => {
-        if (!fileHandle) {
-          alert("Please load your passwords file first.");
-          return;
-        }
-        document.getElementById("change-password-dialog").showModal();
-      });
-
-    document
-      .getElementById("cancel-change-password-dialog-btn")
-      .addEventListener("click", () => {
-        document.getElementById("change-password-dialog").close();
-      });
-
-    document
-      .getElementById("change-password-form")
-      .addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        const oldPassword = document.getElementById("change-master-pass").value;
-        const newPassword = document.getElementById(
-          "change-new-master-pass"
-        ).value;
-
-        if (!oldPassword || !newPassword || !fileHandle) {
-          return alert("All fields are required, including loading a file.");
-        }
-
-        try {
-          const file = await fileHandle.getFile();
-
-          const formData = new FormData();
-          formData.append("old_password", oldPassword);
-          formData.append("new_password", newPassword);
-          formData.append("file", file);
-
-          const response = await fetch("/api/changePassword", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (!response.ok) {
-            const error = await response.json();
-            alert(`Error: ${error.message}`);
-          } else {
-            const newEncryptedData = await response.arrayBuffer();
-            passwordFileData = newEncryptedData; // Update stored data
-
-            await overwriteFile(newEncryptedData);
-            alert("Password changed successfully!");
-            document.getElementById("change-password-dialog").close();
-          }
-        } catch (error) {
-          console.error("Error changing password:", error);
-          alert("Failed to change password.");
-        }
-      });
-
-    // Dialog: New Password
-    document
-      .getElementById("new-password-btn")
-      .addEventListener("click", () => {
-        if (!fileHandle) {
-          alert("Please load your passwords file first.");
-          return;
-        }
-        document.getElementById("new-password-dialog").showModal();
-      });
-
-    document
-      .getElementById("cancel-new-password-dialog-btn")
-      .addEventListener("click", () => {
-        document.getElementById("new-password-dialog").close();
-      });
-
-    document
-      .getElementById("new-password-form")
-      .addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const formElement = event.target;
-        const formData = new FormData(formElement);
-
-        // Check if the password file has been loaded and stored in memory
-        if (!passwordFileData || !fileHandle) {
-          return alert("Please load your passwords file first.");
-        }
-
-        // Append additional fields to FormData
-        formData.append(
-          "is_encrypted",
-          document.getElementById("checked-passfile").checked.toString()
-        );
-
-        // Process extra fields and append them to FormData
-        const extraFieldsInput = formData.get("extra-fields").toString();
-        extraFieldsInput
-          .split(",")
-          .map((field) => field.trim())
-          .forEach((field, index) => {
-            formData.append(`extra_field_${index + 1}`, field);
-          });
-
-        // Process tags and append them to FormData
-        const tagsInput = formData.get("tags").toString();
-        tagsInput
-          .split(",")
-          .map((tag) => tag.trim())
-          .forEach((tag) => {
-            formData.append("tags[]", tag);
-          });
-
-        // Append the stored password file data
-        formData.append(
-          "edit-passfile",
-          new Blob([passwordFileData]),
-          passwordFileName
-        );
-
-        // Append the icon file if present
-        const iconFile = document.getElementById("edit-icon-file").files[0];
-        if (iconFile) formData.append("icon_file", iconFile);
-
-        try {
-          // Send the data to the server
-          const response = await fetch("/api/addPassword", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (!response.ok) {
-            const error = await response.json();
-            alert(`Error: ${error.message}`);
-          } else {
-            // Update password file data in memory with the new file content
-            const updatedFileData = await response.arrayBuffer();
-            passwordFileData = updatedFileData; // Update stored data
-
-            // Overwrite the file directly using the File System Access API
-            await overwriteFile(updatedFileData);
-
-            alert("Password added successfully and file updated!");
-            formElement.reset();
-            document.getElementById("new-password-dialog").close();
-          }
-        } catch (error) {
-          console.error("Error adding password:", error);
-          alert("Failed to add password.");
-        }
-      });
-
-    // Function to render passwords
-    function renderPasswords(entries) {
-      const container = document.getElementById("passwords-container");
-      container.innerHTML = "";
-      entries.forEach((entry) => {
-        const passwordComponent = createPasswordComponent(entry);
-        container.appendChild(passwordComponent);
       });
     }
 
-    // Helper function for creating a password component
-    function createPasswordComponent(entry) {
-      const container = document.createElement("div");
-      container.classList.add(
-        "w-full",
+    extraFieldsContainer.appendChild(extraFieldsTitle);
+    extraFieldsContainer.appendChild(extraFieldsList);
+
+    // Tags section
+    const tagsContainer = document.createElement("div");
+    tagsContainer.classList.add("flex", "flex-col", "mt-2");
+
+    const tagsTitle = document.createElement("h3");
+    tagsTitle.classList.add("text-primary", "font-normal", "text-sm");
+    tagsTitle.textContent = "Tags";
+
+    const tagsList = document.createElement("div");
+    tagsList.classList.add("flex", "gap-2", "mt-1");
+    entry.tags.forEach((tag) => {
+      const tagSpan = document.createElement("span");
+      tagSpan.classList.add(
+        "bg-green",
+        "px-1",
+        "py-0.5",
         "rounded-md",
-        "bg-background-light",
-        "border",
-        "border-white/40",
-        "px-2",
-        "py-2"
-      );
-      const header = document.createElement("div");
-      header.classList.add(
-        "w-full",
-        "flex",
-        "justify-between",
-        "items-center",
-        "gap-2"
-      );
-      const iconContainer = document.createElement("div");
-      iconContainer.classList.add("flex", "gap-2");
-      const iconImg = document.createElement("img");
-      iconImg.src = entry.icon ? entry.icon : "web.svg";
-      iconImg.alt = "Site icon";
-      iconImg.width = 30;
-      iconImg.classList.add("w-[30px]", "h-full", "object-contain");
-      const detailsContainer = document.createElement("div");
-      detailsContainer.classList.add("flex", "flex-col");
-      const siteName = document.createElement("span");
-      siteName.classList.add("text-white", "font-normal", "text-sm");
-      siteName.textContent = entry.site_name;
-      const username = document.createElement("span");
-      username.classList.add("text-white/50", "font-normal", "text-sm");
-      username.textContent = entry.username;
-      const notes = document.createElement("p");
-      notes.classList.add(
-        "text-white/85",
+        "text-white",
         "font-normal",
-        "max-w-2xl",
-        "mt-1",
         "text-sm"
       );
-      notes.textContent = entry.notes;
-      detailsContainer.appendChild(siteName);
-      detailsContainer.appendChild(username);
-      detailsContainer.appendChild(notes);
-      iconContainer.appendChild(iconImg);
-      iconContainer.appendChild(detailsContainer);
-      const actionContainer = document.createElement("div");
-      actionContainer.classList.add("flex", "gap-2");
-      const copyBtn = document.createElement("button");
-      copyBtn.innerHTML =
-        '<img width="25" src="key.svg" alt="copy password icon" />';
-      copyBtn.addEventListener("click", () =>
-        copyPasswordToClipboard(entry.password)
-      );
-      const linkBtn = document.createElement("a");
-      linkBtn.href = entry.url;
-      linkBtn.target = "_blank";
-      linkBtn.innerHTML = '<img src="link.svg" alt="site link" width="25" />';
-      const editBtn = document.createElement("button");
-      editBtn.innerHTML = '<img src="pen.svg" alt="edit icon" width="25" />';
-      editBtn.addEventListener("click", () => openEditDialog(entry.id));
-      actionContainer.appendChild(copyBtn);
-      actionContainer.appendChild(linkBtn);
-      actionContainer.appendChild(editBtn);
-      header.appendChild(iconContainer);
-      header.appendChild(actionContainer);
-      container.appendChild(header);
-      return container;
-    }
-
-    function copyPasswordToClipboard(password) {
-      navigator.clipboard.writeText(password).then(
-        () => alert("Password copied to clipboard!"),
-        (err) => console.error("Could not copy password: ", err)
-      );
-    }
-
-    // Variables para la búsqueda
-    const searchField = document.getElementById("search-field");
-    const searchInput = document.getElementById("search-input");
-
-    // Event listener para la búsqueda en tiempo real
-    searchInput.addEventListener("input", () => {
-      const searchTerm = searchInput.value.trim().toLowerCase();
-      const field = searchField.value;
-      const filteredPasswords = filterPasswords(field, searchTerm);
-      renderPasswords(filteredPasswords); // Actualiza la interfaz con los resultados filtrados
+      tagSpan.textContent = tag;
+      tagsList.appendChild(tagSpan);
     });
 
-    // Función para filtrar contraseñas según el campo y el término de búsqueda
-    function filterPasswords(field, term) {
-      if (!term) return passwords; // Si no hay término, muestra todos
+    tagsContainer.appendChild(tagsTitle);
+    tagsContainer.appendChild(tagsList);
 
-      return passwords.filter((entry) => {
-        // Verifica si el campo existe y es una cadena o array para realizar la búsqueda
-        if (entry[field]) {
-          if (Array.isArray(entry[field])) {
-            // Si el campo es un array (e.g., tags o extra_fields)
-            return entry[field].some((item) =>
-              item.toLowerCase().includes(term)
-            );
-          } else {
-            // Para campos de tipo string
-            return entry[field].toLowerCase().includes(term);
-          }
+    // Dates section
+    const logContainer = document.createElement("div");
+    logContainer.classList.add("flex", "flex-col", "mt-2");
+
+    const logTitle = document.createElement("h3");
+    logTitle.classList.add("text-primary", "font-normal", "text-sm");
+    logTitle.textContent = "Password Log";
+
+    const dateList = document.createElement("div");
+    dateList.classList.add("flex", "flex-col", "mt-1");
+
+    const createDate = document.createElement("div");
+    createDate.classList.add("flex", "gap-2");
+    createDate.innerHTML = `<h4 class="font-medium tracking-tight text-indigo-400">Creation date:</h4><span class="text-white/50 font-normal text-sm">${entry.creation_date}</span>`;
+
+    const updateDate = document.createElement("div");
+    updateDate.classList.add("flex", "gap-2");
+    updateDate.innerHTML = `<h4 class="font-medium tracking-tight text-indigo-400">Update date:</h4><span class="text-white/50 font-normal text-sm">${entry.update_date}</span>`;
+
+    const expirationDate = document.createElement("div");
+    expirationDate.classList.add("flex", "gap-2");
+    expirationDate.innerHTML = `<h4 class="font-medium tracking-tight text-indigo-400">Expiration date:</h4><span class="text-white/50 font-normal text-sm">${entry.expiration_date}</span>`;
+
+    dateList.appendChild(createDate);
+    dateList.appendChild(updateDate);
+    dateList.appendChild(expirationDate);
+
+    logContainer.appendChild(logTitle);
+    logContainer.appendChild(dateList);
+
+    // Final assembly of the container
+    container.appendChild(header);
+    container.appendChild(extraFieldsContainer);
+    container.appendChild(tagsContainer);
+    container.appendChild(logContainer);
+
+    return container;
+  }
+
+  function copyPasswordToClipboard(password) {
+    navigator.clipboard.writeText(password).then(
+      () => alert("Password copied to clipboard!"),
+      (err) => console.error("Could not copy password: ", err)
+    );
+  }
+
+  // Variables para la búsqueda
+  const searchField = document.getElementById("search-field");
+  const searchInput = document.getElementById("search-input");
+
+  // Event listener para la búsqueda en tiempo real
+  searchInput.addEventListener("input", () => {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const field = searchField.value;
+    const filteredPasswords = filterPasswords(field, searchTerm);
+    renderPasswords(filteredPasswords); // Actualiza la interfaz con los resultados filtrados
+  });
+
+  // Función para filtrar contraseñas basado en el campo de búsqueda y el término
+  function filterPasswords(field, searchTerm) {
+    return passwords.filter((entry) => {
+      if (field === "extra_fields") {
+        // Búsqueda en todos los subcampos dentro de extra_fields
+        if (
+          typeof entry.extra_fields === "object" &&
+          entry.extra_fields !== null
+        ) {
+          return Object.values(entry.extra_fields).some((value) =>
+            value.toLowerCase().includes(searchTerm)
+          );
         }
         return false;
-      });
-    }
-  </script>
-</DashLayout>
+      } else {
+        // Búsqueda en otros campos
+        return (
+          entry[field] &&
+          entry[field].toString().toLowerCase().includes(searchTerm)
+        );
+      }
+    });
+  }
+</script>
