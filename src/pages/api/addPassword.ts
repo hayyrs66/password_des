@@ -49,7 +49,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const formData = await request.formData();
     const masterPassword = formData.get("new-master-pass") as string;
-    const isEncrypted = formData.get("is_encrypted") === "true";
+    const isEncrypted = true;
     const file = formData.get("edit-passfile") as File;
     const iconFile = formData.get("edit-icon-file") as File;
 
