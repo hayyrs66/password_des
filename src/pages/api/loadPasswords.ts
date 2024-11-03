@@ -1,37 +1,35 @@
+// Endpoint: loadPasswords
 process.loadEnvFile();
-
 import type { APIRoute } from "astro";
 import crypto from "crypto";
+import forge from "node-forge";
 
-const rsaPrivateKey = process.env.RSA_PRIVATE_KEY!.replace(/\\n/g, '\n');;
-console.log('RSA Private Key:', rsaPrivateKey);
+const rsaPrivateKey = process.env.RSA_PRIVATE_KEY!.replace(/\\n/g, "\n");
+const privateKey = forge.pki.privateKeyFromPem(rsaPrivateKey);
 
-function deriveDESKeyFromPassword(password: string): Buffer {
-  return crypto.pbkdf2Sync(password, "salt", 1000, 8, "sha256");
+function formatDESKey(password) {
+  return Buffer.byteLength(password, 'utf8') === 8
+    ? Buffer.from(password, "utf8")
+    : Buffer.from(password.padEnd(8, ' '), "utf8");
 }
 
-function decryptWithDES(encryptedData: string, password: string) {
-  const desKey = deriveDESKeyFromPassword(password);
+// DES Decryption with ECB mode and PKCS7 padding
+function decryptWithDES(encryptedData, password) {
+  const desKey = formatDESKey(password);
   const decipher = crypto.createDecipheriv("des-ecb", desKey, null);
-  return Buffer.concat([
+  decipher.setAutoPadding(true);
+  const decrypted = Buffer.concat([
     decipher.update(Buffer.from(encryptedData, "base64")),
     decipher.final(),
-  ]).toString("utf8");
+  ]);
+  return decrypted.toString("utf8");
 }
 
-function decryptPasswordWithRSA(encryptedPassword: string) {
-  return crypto
-    .privateDecrypt(
-      {
-        key: rsaPrivateKey,
-        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-        oaepHash: "sha256",
-      },
-      Buffer.from(encryptedPassword, "base64")
-    )
-    .toString("utf8");
+// RSA Decryption with PKCS1 v1.5 padding
+function decryptPasswordWithRSA(encryptedPassword) {
+  const decrypted = privateKey.decrypt(Buffer.from(encryptedPassword, 'base64').toString('binary'), 'RSAES-PKCS1-V1_5');
+  return decrypted;
 }
-
 
 export const POST: APIRoute = async ({ request }) => {
   const formData = await request.formData();
@@ -42,11 +40,13 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(JSON.stringify({ error: "All fields are required" }), { status: 400 });
   }
 
-  const encryptedJson = await file.text();
+  const encryptedArrayBuffer = await file.arrayBuffer();
+  const encryptedBuffer = Buffer.from(encryptedArrayBuffer);
 
   let decryptedJson;
   try {
-    decryptedJson = decryptWithDES(encryptedJson, masterPassword);
+    // Decrypt using DES-ECB and PKCS7
+    decryptedJson = decryptWithDES(encryptedBuffer, masterPassword);
     console.log("File decrypted with DES.");
   } catch (error) {
     console.error("Error decrypting JSON file with DES:", error);
@@ -55,24 +55,15 @@ export const POST: APIRoute = async ({ request }) => {
 
   const data = JSON.parse(decryptedJson);
 
-  data.entries = data.entries.map((entry) => {
-    console.log("Encrypted password:", entry.password); // Log the encrypted password
-    
-    const decryptedPassword = decryptPasswordWithRSA(entry.password);
-    console.log("Decrypted password:", decryptedPassword); // Log the decrypted password (optional)
-  
-    return {
-      ...entry,
-      password: decryptedPassword,
-    };
-  });
-  
-
-
-  console.log(data)
+  // Decrypt each password with RSA
+  data.entries = data.entries.map((entry) => ({
+    ...entry,
+    password: decryptPasswordWithRSA(entry.password),
+  }));
 
   return new Response(JSON.stringify(data), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
 };
+
