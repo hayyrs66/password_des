@@ -1,18 +1,22 @@
+// Endpoint: changePassword
+process.loadEnvFile();
 import type { APIRoute } from "astro";
 import crypto from "crypto";
 
-function formatDESKey(password) {
-  return Buffer.from(password.slice(0, 8), "utf8");
+function formatDESKey(password: string) {
+  return Buffer.byteLength(password, "utf8") === 8
+    ? Buffer.from(password, "utf8")
+    : Buffer.from(password.padEnd(8, " "), "utf8");
 }
 
-function decryptWithDES(encryptedBuffer, password) {
+function decryptWithDES(encryptedBuffer: Buffer, password: string) {
   const desKey = formatDESKey(password);
   const decipher = crypto.createDecipheriv("des-ecb", desKey, null);
   decipher.setAutoPadding(true);
   return Buffer.concat([decipher.update(encryptedBuffer), decipher.final()]).toString("utf8");
 }
 
-function encryptWithDES(data, password) {
+function encryptWithDES(data: string, password: string) {
   const desKey = formatDESKey(password);
   const cipher = crypto.createCipheriv("des-ecb", desKey, null);
   cipher.setAutoPadding(true);
@@ -35,7 +39,6 @@ export const POST: APIRoute = async ({ request }) => {
 
     let decryptedJson;
     try {
-      // Decrypt with the old password
       decryptedJson = decryptWithDES(encryptedBuffer, oldPassword);
       console.log("File decrypted successfully with the old password.");
     } catch (error) {
@@ -43,17 +46,14 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ message: "Old password is incorrect" }), { status: 403 });
     }
 
-    // Parse decrypted data
     const data = JSON.parse(decryptedJson);
-
-    // Re-encrypt with the new password
     const reEncryptedData = encryptWithDES(JSON.stringify(data), newPassword);
 
     return new Response(reEncryptedData, {
       status: 200,
       headers: {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": "attachment; filename=\"updated_passwords.json.enc\"",
+        "Content-Disposition": 'attachment; filename="updated_passwords.json.enc"',
       },
     });
   } catch (error) {
