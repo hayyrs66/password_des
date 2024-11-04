@@ -1,3 +1,5 @@
+// importPlain.ts
+
 process.loadEnvFile();
 
 import type { APIRoute } from "astro";
@@ -33,48 +35,74 @@ export const POST: APIRoute = async ({ request }) => {
     const file = formData.get("file") as File;
 
     if (!masterPassword || !file) {
-      return new Response(JSON.stringify({ message: "All fields are required" }), { status: 400 });
+      return new Response(
+        JSON.stringify({ message: "Master password and file are required" }),
+        { status: 400 }
+      );
     }
 
-    // Leer y parsear el contenido del archivo JSON plano
-    const plainContent = await file.text();
-    const jsonData = JSON.parse(plainContent);
+    // Read and parse the content of the plain JSON file
+    let jsonData;
+    try {
+      const plainContent = await file.text();
+      jsonData = JSON.parse(plainContent);
+    } catch (error) {
+      console.error("Error parsing JSON file:", error);
+      return new Response(
+        JSON.stringify({ message: "Failed to parse JSON file" }),
+        { status: 400 }
+      );
+    }
 
-    // Encriptar cada contraseña individualmente con RSA y conservar los datos desencriptados
-    const decryptedEntries = jsonData.entries.map(entry => ({
+    // Validate that entries is an array
+    if (!jsonData || !Array.isArray(jsonData.entries)) {
+      return new Response(
+        JSON.stringify({ message: "Invalid JSON format: 'entries' array is missing or not an array" }),
+        { status: 400 }
+      );
+    }
+
+    // Encrypt each password individually with RSA
+    const decryptedEntries = jsonData.entries.map((entry: any) => ({
       ...entry,
-      password: entry.password,  // Contraseña en texto plano para la interfaz
+      // Keep the plaintext password for the frontend (if necessary)
+      password: entry.password,
       extra_fields: {
         extra1: entry.extra_fields?.extra1 || "",
         extra2: entry.extra_fields?.extra2 || "",
         extra3: entry.extra_fields?.extra3 || "",
         extra4: entry.extra_fields?.extra4 || "",
-        extra5: entry.extra_fields?.extra5 || ""
-      }
+        extra5: entry.extra_fields?.extra5 || "",
+      },
     }));
 
-    // Encriptar las contraseñas en el JSON para guardar el archivo
-    const encryptedEntries = decryptedEntries.map(entry => ({
+    // Encrypt the passwords in the JSON for saving the file
+    const encryptedEntries = decryptedEntries.map((entry: any) => ({
       ...entry,
-      password: encryptPasswordWithRSA(entry.password)
+      password: encryptPasswordWithRSA(entry.password),
     }));
 
     const encryptedJsonData = JSON.stringify({ entries: encryptedEntries });
     const encryptedData = encryptWithDES(encryptedJsonData, masterPassword);
 
-    // Responder con la estructura desencriptada y el archivo encriptado
-    return new Response(
-      JSON.stringify({
-        encryptedFile: Buffer.from(encryptedData).toString("base64"),
-        decryptedData: decryptedEntries,
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    // Create a Blob with the encrypted data
+    const encryptedBlob = new Blob([encryptedData], {
+      type: "application/octet-stream",
+    });
+
+    // Prepare the response
+    return new Response(encryptedBlob, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Content-Disposition": 'attachment; filename="encrypted_passwords.json.enc"',
+      },
+    });
   } catch (error) {
     console.error("Unexpected error during import:", error);
-    return new Response(JSON.stringify({ message: "Internal server error" }), { status: 500 });
+    return new Response(
+      JSON.stringify({ message: "Internal server error" }),
+      { status: 500 }
+    );
   }
 };
