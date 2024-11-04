@@ -631,6 +631,181 @@ if (!isLoggedIn(cookie)) {
         </div>
       </form>
     </dialog>
+
+    <!-- Dialog for Editing an existing Password -->
+    <dialog
+      id="edit-password-dialog"
+      class="absolute top-[50%] py-4 px-4 left-[50%] backdrop:bg-background/80 backdrop:filter backdrop:backdrop-blur-sm justify-center items-center translate-y-[-50%] translate-x-[-50%] bg-background-light border border-white/20 w-[35rem] rounded-md"
+    >
+      <form id="edit-password-form" class="flex flex-col w-full">
+        <div class="flex flex-col gap-2">
+          <!-- Hidden field to store the ID of the password entry -->
+          <input type="hidden" id="edit-entry-id" name="entry_id" />
+
+          <div class="flex gap-4">
+            <div>
+              <label
+                for="edit-site-name"
+                class="text-white/60 mb-1 text-sm tracking-tight"
+              >
+                Site name
+              </label>
+              <input
+                type="text"
+                id="edit-site-name"
+                name="site_name"
+                required
+                class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+            </div>
+            <div>
+              <label
+                for="edit-username"
+                class="text-white/60 mb-1 text-sm tracking-tight"
+              >
+                Username
+              </label>
+              <input
+                type="text"
+                id="edit-username"
+                name="username"
+                required
+                class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <div>
+              <label
+                for="edit-site-password"
+                class="text-white/60 mb-1 text-sm tracking-tight"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="edit-site-password"
+                name="site_password"
+                class="border border-white/20 w-full bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+                placeholder="Leave blank to keep current password"
+              />
+            </div>
+            <div>
+              <label
+                for="edit-url"
+                class="text-white/60 mb-1 text-sm tracking-tight"
+              >
+                Site URL
+              </label>
+              <input
+                type="url"
+                id="edit-url"
+                name="url"
+                required
+                class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+            </div>
+          </div>
+
+          <label
+            for="edit-notes"
+            class="text-white/60 mb-1 text-sm tracking-tight"
+          >
+            Notes
+          </label>
+          <textarea
+            id="edit-notes"
+            name="notes"
+            required
+            class="border w-full resize-none border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+          ></textarea>
+
+          <div class="flex gap-4 w-full">
+            <div class="flex flex-col w-full">
+              <label
+                for="edit-tags"
+                class="text-white/60 text-sm mb-1 tracking-tight"
+              >
+                Tags (separated by commas)
+              </label>
+              <input
+                type="text"
+                id="edit-tags"
+                name="tags"
+                required
+                class="border w-full border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+              <span class="text-white/30 mb-1 text-sm tracking-tight">
+                e.g. work, favsite, mail
+              </span>
+            </div>
+            <div class="flex flex-col w-full">
+              <label
+                for="edit-extra-fields"
+                class="text-white/60 text-sm mb-1 tracking-tight"
+              >
+                Extra fields (separated by commas)
+              </label>
+              <input
+                type="text"
+                id="edit-extra-fields"
+                name="extra_fields"
+                required
+                class="border w-full border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+              />
+              <span class="text-white/30 mb-1 text-sm tracking-tight">
+                e.g. field1, field2, field3
+              </span>
+            </div>
+          </div>
+          <label
+            for="edit-master-pass"
+            class="text-white/60 mb-1 text-sm tracking-tight"
+          >
+            Master password
+          </label>
+          <input
+            type="password"
+            id="edit-master-pass"
+            name="master_password"
+            required
+            class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+          />
+          <div class="flex gap-5">
+            <div class="w-full">
+              <label
+                class="text-sm text-white/60 font-medium leading-none mb-2 mt-2"
+                for="edit-existing-icon-file"
+              >
+                Icon file
+              </label>
+              <input
+                id="edit-existing-icon-file"
+                name="edit-existing-icon-file"
+                type="file"
+                class="cursor-pointer h-10 w-full rounded-md border border-white/15 border-dashed bg-[#1c1c1c] outline-none px-3 py-2 text-sm text-white/60 file:border-0 file:bg-transparent file:text-white file:text-sm file:font-medium"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button
+            type="submit"
+            class="text-white/85 bg-green rounded-[0.3rem] border border-primary tracking-wide py-1 px-5 mt-4 text-sm hover:bg-green-light transition-colors"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            id="cancel-edit-password-dialog-btn"
+            class="text-white/85 bg-red-500 rounded-[0.3rem] border border-red-400 tracking-wide py-1 px-5 mt-4 text-sm hover:bg-red-400 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </dialog>
   </main>
 </DashLayout>
 
@@ -755,6 +930,7 @@ if (!isLoggedIn(cookie)) {
     );
 
     // Edit password button
+    // Edit password button
     const editBtn = document.createElement("button");
     editBtn.innerHTML = '<img src="pen.svg" alt="edit icon" width="25" />';
     editBtn.addEventListener("click", () => openEditDialog(entry.id));
@@ -859,12 +1035,14 @@ if (!isLoggedIn(cookie)) {
     return container;
   }
 
-  // Function to copy password to clipboard
   function copyPasswordToClipboard(password) {
     navigator.clipboard.writeText(password).then(
       () => alert("Password copied to clipboard!"),
       (err) => console.error("Could not copy password: ", err)
     );
+    setTimeout(() => {
+      alert("Password copied to clipboard!");
+    }, 3000);
   }
 
   // Search functionality
@@ -1236,7 +1414,7 @@ if (!isLoggedIn(cookie)) {
       }
     });
 
-  // Event listener para el formulario de importación de archivo plano
+  // Event listener for the form submission
   document
     .getElementById("import-plain-form")
     .addEventListener("submit", async (event) => {
@@ -1250,12 +1428,12 @@ if (!isLoggedIn(cookie)) {
       }
 
       try {
-        // Crear FormData para enviar el archivo y la contraseña
+        // Create FormData to send the file and the password
         const formData = new FormData();
         formData.append("master_password", masterPassword);
         formData.append("file", window.plainFile);
 
-        // Enviar solicitud al servidor para procesar el archivo
+        // Send request to the server to process the file
         const response = await fetch("/api/importPlain", {
           method: "POST",
           body: formData,
@@ -1266,10 +1444,10 @@ if (!isLoggedIn(cookie)) {
           console.error("Error response data:", errorData);
           alert(`Error: ${errorData.message || "Unknown error"}`);
         } else {
-          // Recibir el archivo encriptado como Blob
+          // Receive the encrypted file as Blob
           const blob = await response.blob();
 
-          // Solicitar al usuario guardar el archivo encriptado
+          // Prompt the user to save the encrypted file
           const options = {
             suggestedName: "encrypted_passwords.json.enc",
             types: [
@@ -1286,16 +1464,32 @@ if (!isLoggedIn(cookie)) {
             await writableStream.write(blob);
             await writableStream.close();
 
-            // Actualizar las variables globales con el nuevo archivo
+            // Update the global variables with the new file
             fileHandle = saveFileHandle;
             passwordFileData = await blob.arrayBuffer();
             passwordFileName = "encrypted_passwords.json.enc";
 
-            // Renderizar las contraseñas desencriptadas
-            // Suponiendo que el servidor también devuelve los datos desencriptados en la respuesta
-            const decryptedData = await response.json();
-            passwords = decryptedData.decryptedData;
-            renderPasswords(passwords);
+            // Load the passwords
+            const formDataLoad = new FormData();
+            formDataLoad.append("master_password", masterPassword);
+            formDataLoad.append(
+              "file",
+              new Blob([passwordFileData]),
+              passwordFileName
+            );
+
+            const loadResponse = await fetch("/api/loadPasswords", {
+              method: "POST",
+              body: formDataLoad,
+            });
+
+            if (loadResponse.ok) {
+              const result = await loadResponse.json();
+              passwords = result.entries;
+              renderPasswords(passwords);
+            } else {
+              console.error("Error loading passwords after import.");
+            }
 
             alert("Plain file encrypted, imported, and saved successfully.");
             document.getElementById("import-plain-dialog").close();
@@ -1318,8 +1512,10 @@ if (!isLoggedIn(cookie)) {
         return alert("No passwords to export.");
       }
 
-      // Agrega el segundo parámetro `null` y el tercer parámetro `2` para la indentación
-      const blob = new Blob([JSON.stringify(passwords, null, 2)], {
+      // Envolver el arreglo de contraseñas en un objeto con la propiedad "entries"
+      const dataToExport = { entries: passwords };
+
+      const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
         type: "application/json",
       });
       const url = window.URL.createObjectURL(blob);
@@ -1331,13 +1527,6 @@ if (!isLoggedIn(cookie)) {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     });
-
-  // Function to open edit dialog (Placeholder, debe implementar según tu lógica)
-  function openEditDialog(entryId) {
-    // Implementa la lógica para abrir el diálogo de edición y manejar la edición
-    alert(`Edit password entry with ID: ${entryId}`);
-    // Por ejemplo, podrías llenar un formulario con los datos de la entrada y luego enviarlos al servidor
-  }
 
   // Dialog: Decrypt File
   document.getElementById("decrypt-file-btn").addEventListener("click", () => {
@@ -1403,6 +1592,114 @@ if (!isLoggedIn(cookie)) {
       } catch (error) {
         console.error("Error decrypting file:", error);
         alert("Failed to decrypt the file.");
+      }
+    });
+
+  function openEditDialog(entryId) {
+    // Encontrar la entrada correspondiente
+    const entry = passwords.find((item) => item.id === entryId);
+    if (!entry) {
+      alert("Password entry not found.");
+      return;
+    }
+
+    // Prellenar los campos del formulario
+    document.getElementById("edit-entry-id").value = entry.id;
+    document.getElementById("edit-site-name").value = entry.site_name;
+    document.getElementById("edit-username").value = entry.username;
+    document.getElementById("edit-url").value = entry.url;
+    document.getElementById("edit-notes").value = entry.notes;
+    document.getElementById("edit-tags").value = entry.tags.join(", ");
+    document.getElementById("edit-extra-fields").value = Object.values(
+      entry.extra_fields
+    )
+      .filter((value) => value !== "")
+      .join(", ");
+
+    // No podemos prellenar el campo de contraseña ya que está encriptada
+    // Podemos dejarlo en blanco y el usuario puede ingresar una nueva contraseña si lo desea
+
+    // Mostrar el diálogo
+    document.getElementById("edit-password-dialog").showModal();
+  }
+
+  document
+    .getElementById("cancel-edit-password-dialog-btn")
+    .addEventListener("click", () => {
+      document.getElementById("edit-password-dialog").close();
+    });
+
+  document
+    .getElementById("edit-password-form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formElement = event.target;
+      const formData = new FormData(formElement);
+
+      // Agregar el archivo encriptado actual
+      formData.append(
+        "edit-passfile",
+        new Blob([passwordFileData]),
+        passwordFileName
+      );
+
+      // Adjuntar el icono si se proporcionó
+      const iconFile = document.getElementById("edit-icon-file").files[0];
+      if (iconFile) {
+        formData.append("icon_file", iconFile);
+      }
+
+      // Enviar los datos al servidor
+      try {
+        const response = await fetch("/api/editPassword", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(`Error: ${error.message}`);
+        } else {
+          // Actualizar passwordFileData con el nuevo contenido
+          const updatedFileData = await response.arrayBuffer();
+          passwordFileData = updatedFileData; // Actualizar los datos en memoria
+
+          // Sobrescribir el archivo
+          await overwriteFile(updatedFileData);
+
+          alert("Password updated successfully!");
+
+          // Cerrar el diálogo
+          document.getElementById("edit-password-dialog").close();
+
+          // Recargar las contraseñas
+          // Desencriptar y renderizar las contraseñas actualizadas
+          const masterPassword = formData.get("master_password");
+          const formDataLoad = new FormData();
+          formDataLoad.append("master_password", masterPassword);
+          formDataLoad.append(
+            "file",
+            new Blob([passwordFileData]),
+            passwordFileName
+          );
+
+          const loadResponse = await fetch("/api/loadPasswords", {
+            method: "POST",
+            body: formDataLoad,
+          });
+
+          if (loadResponse.ok) {
+            const result = await loadResponse.json();
+            passwords = result.entries;
+            renderPasswords(passwords);
+          } else {
+            console.error("Error loading updated passwords.");
+          }
+        }
+      } catch (error) {
+        console.error("Error updating password:", error);
+        alert("Failed to update password.");
       }
     });
 </script>
