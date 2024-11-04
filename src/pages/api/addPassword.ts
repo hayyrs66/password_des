@@ -18,7 +18,10 @@ function encryptWithDES(data: string, password: string) {
   const desKey = formatDESKey(password);
   const cipher = crypto.createCipheriv("des-ecb", desKey, null);
   cipher.setAutoPadding(true);
-  return Buffer.concat([cipher.update(Buffer.from(data, "utf8")), cipher.final()]);
+  return Buffer.concat([
+    cipher.update(Buffer.from(data, "utf8")),
+    cipher.final(),
+  ]);
 }
 
 // DES Decryption with ECB mode and PKCS7 padding
@@ -26,15 +29,20 @@ function decryptWithDES(encryptedData: Buffer, password: string) {
   const desKey = formatDESKey(password);
   const decipher = crypto.createDecipheriv("des-ecb", desKey, null);
   decipher.setAutoPadding(true);
-  const decrypted = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
+  const decrypted = Buffer.concat([
+    decipher.update(encryptedData),
+    decipher.final(),
+  ]);
   return decrypted.toString("utf8");
 }
-
 
 // RSA Encryption with PKCS1 v1.5 padding
 function encryptPasswordWithRSA(data: string) {
   const buffer = Buffer.from(data, "utf8");
-  const encrypted = publicKey.encrypt(buffer.toString("binary"), "RSAES-PKCS1-V1_5");
+  const encrypted = publicKey.encrypt(
+    buffer.toString("binary"),
+    "RSAES-PKCS1-V1_5"
+  );
   return Buffer.from(encrypted, "binary").toString("base64");
 }
 
@@ -53,10 +61,13 @@ export const POST: APIRoute = async ({ request }) => {
     const file = formData.get("edit-passfile") as File;
     const iconFile = formData.get("edit-icon-file") as File;
 
-    console.log(file, masterPassword, iconFile)
+    console.log(file, masterPassword, iconFile);
 
     if (!masterPassword || !file || !iconFile) {
-      return new Response(JSON.stringify({ message: "All fields are required" }), { status: 400 });
+      return new Response(
+        JSON.stringify({ message: "All fields are required" }),
+        { status: 400 }
+      );
     }
 
     let data = { entries: [] as Array<any> };
@@ -73,15 +84,32 @@ export const POST: APIRoute = async ({ request }) => {
       }
 
       if (!Array.isArray(data.entries)) {
-        return new Response(JSON.stringify({ message: "Invalid JSON format: 'entries' array is missing" }), { status: 400 });
+        return new Response(
+          JSON.stringify({
+            message: "Invalid JSON format: 'entries' array is missing",
+          }),
+          { status: 400 }
+        );
       }
     } catch (error) {
       console.error("Error processing file:", error);
-      return new Response(JSON.stringify({ message: "Failed to read or parse the file" }), { status: 500 });
+      return new Response(
+        JSON.stringify({ message: "Failed to read or parse the file" }),
+        { status: 500 }
+      );
     }
 
-    const encryptedPassword = encryptPasswordWithRSA(formData.get("site-password") as string);
-    const extraFields = Array.from({ length: 5 }, (_, i) => formData.get(`extra_field_${i + 1}`)).filter(Boolean);
+    const encryptedPassword = encryptPasswordWithRSA(
+      formData.get("site-password") as string
+    );
+
+    // Ensure extra_fields is an object with keys "extra1" to "extra5" with empty strings if not provided
+    const extraFields = {};
+    for (let i = 1; i <= 5; i++) {
+      const fieldValue = formData.get(`extra_field_${i}`) as string;
+      extraFields[`extra${i}`] = fieldValue || "";
+    }
+
     const tags = formData.getAll("tags[]");
     const creationDate = new Date();
     const expirationDate = calculateExpirationDate(creationDate);
@@ -111,11 +139,14 @@ export const POST: APIRoute = async ({ request }) => {
       status: 200,
       headers: {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": 'attachment; filename="updated_passwords.json.enc"',
+        "Content-Disposition":
+          'attachment; filename="updated_passwords.json.enc"',
       },
     });
   } catch (error) {
     console.error("Unexpected error:", error);
-    return new Response(JSON.stringify({ message: "Internal server error" }), { status: 500 });
+    return new Response(JSON.stringify({ message: "Internal server error" }), {
+      status: 500,
+    });
   }
 };
