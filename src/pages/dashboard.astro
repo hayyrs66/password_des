@@ -108,6 +108,12 @@ if (!isLoggedIn(cookie)) {
             >
               Export plain
             </button>
+            <button
+              id="decrypt-file-btn"
+              class="text-white/85 bg-[#242424] px-4 rounded-[0.3rem] outline-none border border-white/20 tracking-wide py-0.5 text-sm login hover:bg-[#313131] transition-colors"
+            >
+              Decrypt File
+            </button>
           </div>
         </div>
 
@@ -224,6 +230,41 @@ if (!isLoggedIn(cookie)) {
           >
             Cancel
           </button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Dialog for decrypting -->
+    <dialog
+      id="decrypt-dialog"
+      class="absolute top-[50%] py-4 px-4 left-[50%] backdrop:bg-background/80 backdrop:filter backdrop:backdrop-blur-sm justify-enter items-center translate-y-[-50%] translate-x-[-50%] bg-background-light border border-white/20 w-[35rem] rounded-md"
+    >
+      <form id="decrypt-form" class="flex flex-col w-full">
+        <label
+          for="descrypt-password"
+          class="text-white/60 mb-1 text-sm tracking-tight"
+        >
+          Enter master password
+        </label>
+        <input
+          type="password"
+          id="descrypt-password"
+          name="descrypt-password"
+          required
+          class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+        />
+        <div class="flex gap-2">
+          <button
+            type="submit"
+            class="text-white/85 bg-green rounded-[0.3rem] border border-primary tracking-wide py-1 px-5 mt-4 text-sm hover:bg-green-light transition-colors"
+            >Load</button
+          >
+          <button
+            type="button"
+            id="decrypt-cancel-dialog-btn"
+            class="text-white/85 bg-red-500 rounded-[0.3rem] border border-red-400 tracking-wide py-1 px-5 mt-4 text-sm hover:bg-red-400 transition-colors"
+            >Cancel</button
+          >
         </div>
       </form>
     </dialog>
@@ -467,7 +508,7 @@ if (!isLoggedIn(cookie)) {
               <input
                 type="text"
                 id="new-site-name"
-                name="site-name"
+                name="site_name"
                 required
                 class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
               />
@@ -498,7 +539,7 @@ if (!isLoggedIn(cookie)) {
               <input
                 type="password"
                 id="new-site-password"
-                name="site-password"
+                name="site_password"
                 required
                 class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
               />
@@ -554,7 +595,7 @@ if (!isLoggedIn(cookie)) {
               <input
                 type="text"
                 id="new-extra-fields"
-                name="extra-fields"
+                name="extra_fields"
                 required
                 class="border w-full border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
               />
@@ -562,14 +603,14 @@ if (!isLoggedIn(cookie)) {
           </div>
           <!-- Master Password -->
           <label
-            for="new-master-pass"
+            for="create-master-pass"
             class="text-white/60 mb-1 text-sm tracking-tight"
             >Enter master password</label
           >
           <input
             type="password"
-            id="new-master-pass"
-            name="master-password"
+            id="create-master-pass"
+            name="master_password"
             required
             class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
           />
@@ -1074,7 +1115,7 @@ if (!isLoggedIn(cookie)) {
           formElement.reset();
           document.getElementById("new-password-dialog").close();
 
-          // Optionally, re-render the passwords
+          // Re-render the updated passwords
           // Assuming the server returns the updated entries
           const updatedEntries = await response.json();
           passwords = updatedEntries.entries;
@@ -1105,7 +1146,7 @@ if (!isLoggedIn(cookie)) {
       event.preventDefault();
       const formData = new FormData(event.target);
 
-      const masterPassword = formData.get("master_password").toString();
+      const masterPassword = formData.get("master_password");
       if (!masterPassword) {
         return alert("Please enter a master password.");
       }
@@ -1297,4 +1338,71 @@ if (!isLoggedIn(cookie)) {
     alert(`Edit password entry with ID: ${entryId}`);
     // Por ejemplo, podrías llenar un formulario con los datos de la entrada y luego enviarlos al servidor
   }
+
+  // Dialog: Decrypt File
+  document.getElementById("decrypt-file-btn").addEventListener("click", () => {
+    if (!fileHandle) {
+      alert("Please load your passwords file first.");
+      return;
+    }
+    document.getElementById("decrypt-dialog").showModal();
+  });
+
+  document
+    .getElementById("decrypt-cancel-dialog-btn")
+    .addEventListener("click", () => {
+      document.getElementById("decrypt-dialog").close();
+    });
+
+  document
+    .getElementById("decrypt-form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const masterPassword = document.getElementById("descrypt-password").value;
+
+      if (!masterPassword || !fileHandle) {
+        return alert("All fields are required, including selecting a file.");
+      }
+
+      try {
+        const file = await fileHandle.getFile();
+        const arrayBuffer = await file.arrayBuffer();
+        const encryptedData = new Blob([arrayBuffer]);
+
+        const formData = new FormData();
+        formData.append("master_password", masterPassword);
+        formData.append("file", encryptedData, file.name);
+
+        const response = await fetch("/api/decryptFile", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error response data:", errorData);
+          alert(`Error: ${errorData.message || "Unknown error"}`);
+        } else {
+          // Recibir el archivo desencriptado como Blob
+          const decryptedBlob = await response.blob();
+
+          // Crear un enlace para descargar el archivo desencriptado
+          const url = window.URL.createObjectURL(decryptedBlob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = file.name.replace(/\.enc$/, ".dec"); // Cambio de extensión a .dec
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+
+          alert("File decrypted and downloaded successfully!");
+          document.getElementById("decrypt-dialog").close();
+        }
+      } catch (error) {
+        console.error("Error decrypting file:", error);
+        alert("Failed to decrypt the file.");
+      }
+    });
 </script>
