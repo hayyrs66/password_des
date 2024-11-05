@@ -104,6 +104,27 @@ export const POST: APIRoute = async ({ request }) => {
     entry.notes = formData.get("notes");
     entry.update_date = new Date().toISOString();
 
+    // Procesar y validar la fecha de expiración
+    const expirationDateInput = formData.get("expiration_date") as string;
+    if (expirationDateInput) {
+      const selectedDate = new Date(expirationDateInput);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Resetear hora para comparación
+
+      if (selectedDate < today) {
+        return new Response(
+          JSON.stringify({
+            message: "Expiration date cannot be earlier than today.",
+          }),
+          { status: 400 }
+        );
+      }
+
+      entry.expiration_date = selectedDate.toISOString();
+    } else {
+      entry.expiration_date = null;
+    }
+
     // Process tags
     const tagsInput = formData.get("tags") as string;
     entry.tags = tagsInput
