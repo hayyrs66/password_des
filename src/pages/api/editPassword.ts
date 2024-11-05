@@ -86,7 +86,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Encontrar la entrada a editar
+    // Find the entry to edit
     const entryIndex = data.entries.findIndex((item) => item.id === entryId);
     if (entryIndex === -1) {
       return new Response(
@@ -97,46 +97,58 @@ export const POST: APIRoute = async ({ request }) => {
 
     const entry = data.entries[entryIndex];
 
-    // Actualizar los datos
+    // Update fields
     entry.site_name = formData.get("site_name");
     entry.username = formData.get("username");
     entry.url = formData.get("url");
     entry.notes = formData.get("notes");
     entry.update_date = new Date().toISOString();
 
-    // Procesar tags
+    // Process tags
     const tagsInput = formData.get("tags") as string;
     entry.tags = tagsInput
       .split(",")
       .map((tag) => tag.trim())
       .filter((tag) => tag !== "");
 
-    // Procesar extra fields
+    // Process extra fields
     const extraFieldsInput = formData.get("extra_fields") as string;
     const extraFieldsArray = extraFieldsInput
       .split(",")
       .map((field) => field.trim());
-    const extraFields = {};
+    const extraFields: { [key: string]: string } = {};
     for (let i = 1; i <= 5; i++) {
       extraFields[`extra${i}`] = extraFieldsArray[i - 1] || "";
     }
     entry.extra_fields = extraFields;
 
-    // Si se proporcionó una nueva contraseña, encriptarla
+    // If a new password is provided, encrypt it
     const sitePassword = formData.get("site_password") as string;
     if (sitePassword) {
       const encryptedPassword = encryptPasswordWithRSA(sitePassword);
       entry.password = encryptedPassword;
     }
 
-    // Si se proporcionó un nuevo icono, actualizarlo
-    if (iconFile) {
+    // If a new icon is provided, validate and encode it as Base64 SVG
+    if (iconFile && iconFile.size > 0) {
+      // Validate MIME type
+      if (iconFile.type !== "image/svg+xml") {
+        return new Response(
+          JSON.stringify({ message: "Only SVG files are supported for icons." }),
+          { status: 400 }
+        );
+      }
+
+      // Read the content of the SVG file
       const iconArrayBuffer = await iconFile.arrayBuffer();
-      const iconBase64 = Buffer.from(iconArrayBuffer).toString("base64");
-      entry.icon = `data:image/png;base64,${iconBase64}`;
+      const iconBuffer = Buffer.from(iconArrayBuffer);
+      const iconBase64 = iconBuffer.toString("base64");
+
+      // Store the Base64 string in entry.icon
+      entry.icon = iconBase64;
     }
 
-    // Encriptar y devolver el archivo actualizado
+    // Encrypt and return the updated file
     const updatedJson = JSON.stringify(data, null, 2);
     const finalDataBuffer = encryptWithDES(updatedJson, masterPassword);
 

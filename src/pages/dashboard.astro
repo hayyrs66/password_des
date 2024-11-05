@@ -114,6 +114,12 @@ if (!isLoggedIn(cookie)) {
             >
               Decrypt File
             </button>
+            <button
+              id="decrypt-selected-btn"
+              class="text-white/85 bg-[#242424] px-4 rounded-[0.3rem] outline-none border border-white/20 tracking-wide py-0.5 text-sm login hover:bg-[#313131] transition-colors"
+            >
+              Decrypt Selected
+            </button>
           </div>
         </div>
 
@@ -872,9 +878,20 @@ if (!isLoggedIn(cookie)) {
       "gap-2"
     );
 
+    // Checkbox for selection
+    const checkboxContainer = document.createElement("div");
+    checkboxContainer.classList.add("flex", "items-center");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.classList.add("entry-checkbox");
+    checkbox.value = entry.id; // Store the entry's ID for identification
+    checkbox.dataset.entryId = entry.id;
+    checkboxContainer.appendChild(checkbox);
+
     // Site details
     const detailsContainer = document.createElement("div");
-    detailsContainer.classList.add("flex", "flex-col");
+    detailsContainer.classList.add("flex", "flex-col", "ml-2");
 
     const siteName = document.createElement("span");
     siteName.classList.add("text-white", "font-normal", "text-sm");
@@ -909,12 +926,31 @@ if (!isLoggedIn(cookie)) {
     linkBtn.target = "_blank";
 
     const linkIcon = document.createElement("img");
-    linkIcon.src = entry.icon ? entry.icon : "web.svg";
     linkIcon.alt = "Site icon";
     linkIcon.width = 30;
     linkIcon.classList.add("w-[30px]", "h-full", "object-contain");
 
-    // Fallback icon
+    if (entry.icon) {
+      try {
+        const decodedIcon = atob(entry.icon.trim());
+        if (decodedIcon.startsWith("<svg")) {
+          const mimeType = "image/svg+xml";
+          linkIcon.src = `data:${mimeType};base64,${entry.icon}`;
+        } else {
+          // If not SVG, use default icon
+          linkIcon.src = "web.svg";
+        }
+      } catch (error) {
+        console.error("Error decoding icon:", error);
+        // Fallback to default icon on error
+        linkIcon.src = "web.svg";
+      }
+    } else {
+      // Use default icon if no icon is provided
+      linkIcon.src = "web.svg";
+    }
+
+    // Icon fallback in case SVG fails to load
     linkIcon.onerror = () => {
       linkIcon.src = "web.svg";
     };
@@ -930,7 +966,6 @@ if (!isLoggedIn(cookie)) {
     );
 
     // Edit password button
-    // Edit password button
     const editBtn = document.createElement("button");
     editBtn.innerHTML = '<img src="pen.svg" alt="edit icon" width="25" />';
     editBtn.addEventListener("click", () => openEditDialog(entry.id));
@@ -940,6 +975,7 @@ if (!isLoggedIn(cookie)) {
     actionContainer.appendChild(copyBtn);
     actionContainer.appendChild(editBtn);
 
+    header.appendChild(checkboxContainer);
     header.appendChild(detailsContainer);
     header.appendChild(actionContainer);
 
@@ -1041,8 +1077,8 @@ if (!isLoggedIn(cookie)) {
       (err) => console.error("Could not copy password: ", err)
     );
     setTimeout(() => {
-      alert("Password copied to clipboard!");
-    }, 3000);
+      navigator.clipboard.writeText("");
+    }, 5000);
   }
 
   // Search functionality
@@ -1645,9 +1681,14 @@ if (!isLoggedIn(cookie)) {
       );
 
       // Adjuntar el icono si se proporcionó
-      const iconFile = document.getElementById("edit-icon-file").files[0];
+      const iconFile = document.getElementById("edit-existing-icon-file")
+        .files[0];
+
+      console.log("icono a cambiar", iconFile);
+
       if (iconFile) {
         formData.append("icon_file", iconFile);
+        console.log("Archivo de ícono adjuntado:", iconFile);
       }
 
       // Enviar los datos al servidor
@@ -1700,6 +1741,62 @@ if (!isLoggedIn(cookie)) {
       } catch (error) {
         console.error("Error updating password:", error);
         alert("Failed to update password.");
+      }
+    });
+
+  document
+    .getElementById("decrypt-selected-btn")
+    .addEventListener("click", async () => {
+      const selectedCheckboxes = document.querySelectorAll(
+        ".entry-checkbox:checked"
+      );
+      const selectedEntries = Array.from(selectedCheckboxes).map(
+        (checkbox) => checkbox.value
+      );
+
+      if (selectedEntries.length === 0) {
+        alert("No entries selected for decryption.");
+        return;
+      }
+
+      const masterPassword = prompt(
+        "Enter your master password for decryption:"
+      );
+      if (!masterPassword) {
+        alert("Master password is required.");
+        return;
+      }
+
+      // Creating a formData to send the encrypted file and selected entries
+      const formData = new FormData();
+      formData.append("file", new Blob([passwordFileData]), passwordFileName);
+      formData.append("master_password", masterPassword);
+      formData.append("selected_entries", JSON.stringify(selectedEntries));
+
+      try {
+        const response = await fetch("/api/selectedDecrypt", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert(`Error: ${errorData.message}`);
+        } else {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "decrypted_entries.dec.json";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          alert("Selected entries decrypted and downloaded successfully.");
+        }
+      } catch (error) {
+        console.error("Error decrypting selected entries:", error);
+        alert("Failed to decrypt selected entries.");
       }
     });
 </script>
