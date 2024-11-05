@@ -727,6 +727,21 @@ if (!isLoggedIn(cookie)) {
             class="border w-full resize-none border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
           ></textarea>
 
+          <!-- Campo para Fecha de Expiración -->
+          <label
+            for="edit-expiration-date"
+            class="text-white/60 mb-1 text-sm tracking-tight"
+          >
+            Expiration Date
+          </label>
+          <input
+            type="date"
+            id="edit-expiration-date"
+            name="expiration_date"
+            required
+            class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+          />
+
           <div class="flex gap-4 w-full">
             <div class="flex flex-col w-full">
               <label
@@ -778,7 +793,7 @@ if (!isLoggedIn(cookie)) {
             required
             class="border border-white/20 bg-[#1c1c1c] w-full rounded-md text-white/85 text-sm py-2 px-3 outline-none"
           />
-          <div class="flex gap-5">
+          <div class="flex flex-col gap-2">
             <div class="w-full">
               <label
                 class="text-sm text-white/60 font-medium leading-none mb-2 mt-2"
@@ -878,17 +893,6 @@ if (!isLoggedIn(cookie)) {
       "gap-2"
     );
 
-    // Checkbox for selection
-    const checkboxContainer = document.createElement("div");
-    checkboxContainer.classList.add("flex", "items-center");
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.classList.add("entry-checkbox");
-    checkbox.value = entry.id; // Store the entry's ID for identification
-    checkbox.dataset.entryId = entry.id;
-    checkboxContainer.appendChild(checkbox);
-
     // Site details
     const detailsContainer = document.createElement("div");
     detailsContainer.classList.add("flex", "flex-col", "ml-2");
@@ -910,6 +914,7 @@ if (!isLoggedIn(cookie)) {
       "mt-1",
       "text-sm"
     );
+
     notes.textContent = entry.notes;
 
     detailsContainer.appendChild(siteName);
@@ -924,6 +929,12 @@ if (!isLoggedIn(cookie)) {
     const linkBtn = document.createElement("a");
     linkBtn.href = entry.url;
     linkBtn.target = "_blank";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.classList.add("entry-checkbox");
+    checkbox.value = entry.id; // Store the entry's ID for identification
+    checkbox.dataset.entryId = entry.id;
 
     const linkIcon = document.createElement("img");
     linkIcon.alt = "Site icon";
@@ -971,11 +982,11 @@ if (!isLoggedIn(cookie)) {
     editBtn.addEventListener("click", () => openEditDialog(entry.id));
 
     // Append action buttons
+    actionContainer.appendChild(checkbox);
     actionContainer.appendChild(linkBtn);
     actionContainer.appendChild(copyBtn);
     actionContainer.appendChild(editBtn);
 
-    header.appendChild(checkboxContainer);
     header.appendChild(detailsContainer);
     header.appendChild(actionContainer);
 
@@ -1652,8 +1663,18 @@ if (!isLoggedIn(cookie)) {
       .filter((value) => value !== "")
       .join(", ");
 
-    // No podemos prellenar el campo de contraseña ya que está encriptada
-    // Podemos dejarlo en blanco y el usuario puede ingresar una nueva contraseña si lo desea
+    // Prellenar la fecha de expiración
+    const expirationDateInput = document.getElementById("edit-expiration-date");
+    const today = new Date().toISOString().split("T")[0];
+    expirationDateInput.setAttribute("min", today); // Establecer fecha mínima a hoy
+
+    if (entry.expiration_date) {
+      const expirationDate = new Date(entry.expiration_date);
+      const isoDateString = expirationDate.toISOString().split("T")[0];
+      expirationDateInput.value = isoDateString;
+    } else {
+      expirationDateInput.value = "";
+    }
 
     // Mostrar el diálogo
     document.getElementById("edit-password-dialog").showModal();
@@ -1670,6 +1691,20 @@ if (!isLoggedIn(cookie)) {
     .addEventListener("submit", async (event) => {
       event.preventDefault();
 
+      // Obtener la fecha de expiración ingresada
+      const expirationDateInput = document.getElementById(
+        "edit-expiration-date"
+      ).value;
+      const selectedDate = new Date(expirationDateInput);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Establecer hora a medianoche para comparación
+
+      if (selectedDate < today) {
+        alert("The expiration date cannot be earlier than today.");
+        return;
+      }
+
+      // Continuar con el procesamiento del formulario...
       const formElement = event.target;
       const formData = new FormData(formElement);
 
@@ -1683,15 +1718,10 @@ if (!isLoggedIn(cookie)) {
       // Adjuntar el icono si se proporcionó
       const iconFile = document.getElementById("edit-existing-icon-file")
         .files[0];
-
-      console.log("icono a cambiar", iconFile);
-
       if (iconFile) {
         formData.append("icon_file", iconFile);
-        console.log("Archivo de ícono adjuntado:", iconFile);
       }
 
-      // Enviar los datos al servidor
       try {
         const response = await fetch("/api/editPassword", {
           method: "POST",
@@ -1715,7 +1745,6 @@ if (!isLoggedIn(cookie)) {
           document.getElementById("edit-password-dialog").close();
 
           // Recargar las contraseñas
-          // Desencriptar y renderizar las contraseñas actualizadas
           const masterPassword = formData.get("master_password");
           const formDataLoad = new FormData();
           formDataLoad.append("master_password", masterPassword);
