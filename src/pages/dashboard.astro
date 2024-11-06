@@ -32,6 +32,12 @@ if (!isLoggedIn(cookie)) {
           >
             Change master password
           </button>
+          <button
+            id="inactive-timeout-button"
+            class="text-sm text-white/85 tracking-normal px-5 hover:text-white transition-colors"
+          >
+            Set automatic logout time
+          </button>
         </div>
       </div>
 
@@ -131,6 +137,46 @@ if (!isLoggedIn(cookie)) {
         </div>
       </div>
     </section>
+
+    <!-- Dialog for Setting inactivity time logout -->
+    <dialog
+      id="inactivity-timeout-dialog"
+      class="absolute top-[50%] py-4 px-4 left-[50%] backdrop:bg-background/80 backdrop:filter backdrop:backdrop-blur-sm justify-enter items-center translate-y-[-50%] translate-x-[-50%] bg-background-light border border-white/20 w-[35rem] rounded-md"
+    >
+      <form id="inactivity-timeout-form" class="flex flex-col w-full">
+        <div class="flex flex-col gap-2">
+          <label
+            for="inactivity-timeout"
+            class="text-white/60 mb-2 text-sm tracking-tight"
+          >
+            Enter inactivity timeout (seconds)
+          </label>
+          <input
+            type="number"
+            id="inactivity-timeout"
+            name="inactivity-timeout"
+            required
+            min="10"
+            class="border border-white/20 bg-[#1c1c1c] rounded-md text-white/85 text-sm py-2 px-3 outline-none"
+          />
+        </div>
+        <div class="flex gap-2">
+          <button
+            type="submit"
+            class="text-white/85 bg-green rounded-[0.3rem] border border-primary tracking-wide py-1 px-5 mt-4 text-sm hover:bg-green-light transition-colors"
+          >
+            Save Changes
+          </button>
+          <button
+            type="button"
+            id="cancel-inactivity-timeout-dialog-btn"
+            class="text-white/85 bg-red-500 rounded-[0.3rem] border border-red-400 tracking-wide py-1 px-5 mt-4 text-sm hover:bg-red-400 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </dialog>
 
     <!-- Dialog for Changing Master Password -->
     <dialog
@@ -1858,4 +1904,81 @@ if (!isLoggedIn(cookie)) {
         alert("Failed to decrypt selected entries.");
       }
     });
+
+  // Tiempo de inactividad predeterminado en milisegundos (ej. 5 minutos)
+  const DEFAULT_INACTIVITY_TIMEOUT = 1 * 60 * 1000;
+  let inactivityTimeout = DEFAULT_INACTIVITY_TIMEOUT;
+  let inactivityTimer = null;
+
+  // Inicia el temporizador al cargar la aplicación
+  window.addEventListener("load", () => {
+    resetInactivityTimer();
+    setupInactivityListeners();
+  });
+
+  // Seleccionar el botón para abrir el diálogo de configuración de tiempo de inactividad
+  document
+    .getElementById("inactive-timeout-button")
+    .addEventListener("click", () => {
+      document.getElementById("inactivity-timeout-dialog").showModal();
+    });
+
+  // Botón para cerrar el diálogo sin guardar
+  document
+    .getElementById("cancel-inactivity-timeout-dialog-btn")
+    .addEventListener("click", () => {
+      document.getElementById("inactivity-timeout-dialog").close();
+    });
+
+  // Evento para manejar el envío del formulario de configuración de tiempo de inactividad
+  document
+    .getElementById("inactivity-timeout-form")
+    .addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      // Leer el tiempo de inactividad configurado en segundos
+      const timeoutInput = document.getElementById("inactivity-timeout");
+      inactivityTimeout = parseInt(timeoutInput.value, 10) * 1000; // Convertir a milisegundos
+
+      if (inactivityTimeout < 10000) {
+        // Asegurarse de que el tiempo mínimo es de 10 segundos
+        alert("Please set a timeout of at least 10 seconds.");
+        return;
+      }
+
+      document.getElementById("inactivity-timeout-dialog").close();
+
+      // Resetear el temporizador de inactividad
+      resetInactivityTimer();
+    });
+
+  // Configura los detectores de actividad
+  function setupInactivityListeners() {
+    // Detectar actividad del mouse y estado de la ventana
+    window.addEventListener("mousemove", resetInactivityTimer);
+    window.addEventListener("focus", resetInactivityTimer);
+    window.addEventListener("blur", resetInactivityTimer);
+  }
+
+  // Restablece el temporizador de inactividad
+  function resetInactivityTimer() {
+    // Limpiar el temporizador anterior
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+
+    // Configurar un nuevo temporizador de inactividad
+    inactivityTimer = setTimeout(logoutDueToInactivity, inactivityTimeout);
+  }
+
+  // Ejecuta el cierre de sesión después del tiempo de inactividad
+  async function logoutDueToInactivity() {
+    try {
+      await fetch("/api/logout");
+      alert("You have been logged out due to inactivity.");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error during logout due to inactivity:", error);
+    }
+  }
 </script>
