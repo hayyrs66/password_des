@@ -1447,15 +1447,15 @@ if (!isLoggedIn(cookie)) {
         const [plainFileHandle] = await window.showOpenFilePicker({
           types: [
             {
-              description: "Plain JSON",
-              accept: { "application/json": [".json"] },
+              description: "Plain or Encrypted JSON",
+              accept: { "application/json": [".json", ".json.dec"] },
             },
           ],
         });
         const file = await plainFileHandle.getFile();
         document.getElementById("selected-import-plain-file-name").textContent =
           file.name;
-        window.plainFile = file;
+        window.plainFile = file; // Guardar el archivo en la variable global para su envío
       } catch (error) {
         console.error("File selection failed:", error);
       }
@@ -1475,12 +1475,12 @@ if (!isLoggedIn(cookie)) {
       }
 
       try {
-        // Create FormData to send the file and the password
+        // Crear FormData para enviar el archivo y la contraseña
         const formData = new FormData();
         formData.append("master_password", masterPassword);
         formData.append("file", window.plainFile);
 
-        // Send request to the server to process the file
+        // Realizar la solicitud al servidor para procesar el archivo
         const response = await fetch("/api/importPlain", {
           method: "POST",
           body: formData,
@@ -1491,10 +1491,10 @@ if (!isLoggedIn(cookie)) {
           console.error("Error response data:", errorData);
           alert(`Error: ${errorData.message || "Unknown error"}`);
         } else {
-          // Receive the encrypted file as Blob
+          // Recibir el archivo encriptado como Blob
           const blob = await response.blob();
 
-          // Prompt the user to save the encrypted file
+          // Solicitar al usuario guardar el archivo encriptado
           const options = {
             suggestedName: "encrypted_passwords.json.enc",
             types: [
@@ -1511,12 +1511,12 @@ if (!isLoggedIn(cookie)) {
             await writableStream.write(blob);
             await writableStream.close();
 
-            // Update the global variables with the new file
+            // Actualizar las variables globales con el nuevo archivo
             fileHandle = saveFileHandle;
             passwordFileData = await blob.arrayBuffer();
             passwordFileName = "encrypted_passwords.json.enc";
 
-            // Load the passwords
+            // Cargar las contraseñas desde el nuevo archivo encriptado
             const formDataLoad = new FormData();
             formDataLoad.append("master_password", masterPassword);
             formDataLoad.append(
@@ -1551,28 +1551,58 @@ if (!isLoggedIn(cookie)) {
       }
     });
 
-  // Descargar archivo en formato plain para "Export Plain"
   document
     .getElementById("export-plain-btn")
     .addEventListener("click", async () => {
-      if (!passwords.length) {
-        return alert("No passwords to export.");
+      // Verifica si las contraseñas están cargadas
+      if (!passwordFileData) {
+        return alert("Please load your encrypted passwords file first.");
       }
 
-      // Envolver el arreglo de contraseñas en un objeto con la propiedad "entries"
-      const dataToExport = { entries: passwords };
+      // Solicita la contraseña maestra para desencriptar el archivo en el servidor
+      const masterPassword = prompt("Enter your master password for export:");
+      if (!masterPassword) {
+        return alert("Master password is required for export.");
+      }
 
-      const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
-        type: "application/json",
-      });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "passwords_plain.json";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      try {
+        // Crear un FormData y añadir el archivo encriptado y la contraseña maestra
+        const formData = new FormData();
+        formData.append("master_password", masterPassword);
+        formData.append("file", new Blob([passwordFileData]), passwordFileName);
+
+        // Hacer el fetch al endpoint /api/exportPlain
+        const response = await fetch("/api/exportPlain", {
+          method: "POST",
+          body: formData,
+        });
+
+        // Verificar respuesta del servidor
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error response data:", errorData);
+          return alert(`Error: ${errorData.message || "Unknown error"}`);
+        }
+
+        // Recibir el archivo desencriptado como un Blob
+        const plainBlob = await response.blob();
+        const url = window.URL.createObjectURL(plainBlob);
+
+        // Crear un enlace para descargar el archivo desencriptado
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "passwords_plain.json"; // Nombre del archivo para exportación
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Revocar el objeto URL para liberar memoria
+        window.URL.revokeObjectURL(url);
+        alert("Passwords exported successfully in plain format.");
+      } catch (error) {
+        console.error("Error exporting plain passwords:", error);
+        alert("Failed to export passwords in plain format.");
+      }
     });
 
   // Dialog: Decrypt File

@@ -1,13 +1,7 @@
-// importPlain.ts
-
 process.loadEnvFile();
 
 import type { APIRoute } from "astro";
 import crypto from "crypto";
-import forge from "node-forge";
-
-const rsaPublicKey = process.env.RSA_PUBLIC_KEY!;
-const publicKey = forge.pki.publicKeyFromPem(rsaPublicKey);
 
 function formatDESKey(password: string) {
   return Buffer.byteLength(password, "utf8") === 8
@@ -19,13 +13,7 @@ function encryptWithDES(data: string, password: string) {
   const desKey = formatDESKey(password);
   const cipher = crypto.createCipheriv("des-ecb", desKey, null);
   cipher.setAutoPadding(true);
-  return Buffer.concat([cipher.update(Buffer.from(data, "utf8")), cipher.final()]);
-}
-
-function encryptPasswordWithRSA(data: string) {
-  const buffer = Buffer.from(data, "utf8");
-  const encrypted = publicKey.encrypt(buffer.toString("binary"), "RSAES-PKCS1-V1_5");
-  return Buffer.from(encrypted, "binary").toString("base64");
+  return Buffer.concat([cipher.update(data, "utf8"), cipher.final()]);
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -41,20 +29,29 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Read and parse the content of the plain JSON file
     let jsonData;
-    try {
+
+    // Detectar si el archivo es .json o .json.dec y procesarlo como plano
+    if (file.name.endsWith(".json") || file.name.endsWith(".json.dec")) {
+      // Tratar ambos archivos como planos
       const plainContent = await file.text();
-      jsonData = JSON.parse(plainContent);
-    } catch (error) {
-      console.error("Error parsing JSON file:", error);
+      try {
+        jsonData = JSON.parse(plainContent);
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+        return new Response(
+          JSON.stringify({ message: "Failed to parse JSON file" }),
+          { status: 400 }
+        );
+      }
+    } else {
       return new Response(
-        JSON.stringify({ message: "Failed to parse JSON file" }),
+        JSON.stringify({ message: "Unsupported file format. Use .json or .json.dec" }),
         { status: 400 }
       );
     }
 
-    // Validate that entries is an array
+    // Validar que el formato JSON tenga las contraseñas encriptadas con RSA
     if (!jsonData || !Array.isArray(jsonData.entries)) {
       return new Response(
         JSON.stringify({ message: "Invalid JSON format: 'entries' array is missing or not an array" }),
@@ -62,35 +59,17 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Encrypt each password individually with RSA
-    const decryptedEntries = jsonData.entries.map((entry: any) => ({
-      ...entry,
-      // Keep the plaintext password for the frontend (if necessary)
-      password: entry.password,
-      extra_fields: {
-        extra1: entry.extra_fields?.extra1 || "",
-        extra2: entry.extra_fields?.extra2 || "",
-        extra3: entry.extra_fields?.extra3 || "",
-        extra4: entry.extra_fields?.extra4 || "",
-        extra5: entry.extra_fields?.extra5 || "",
-      },
-    }));
+    // Crear una representación JSON en texto de los datos para su encriptación
+    const jsonString = JSON.stringify(jsonData);
 
-    // Encrypt the passwords in the JSON for saving the file
-    const encryptedEntries = decryptedEntries.map((entry: any) => ({
-      ...entry,
-      password: encryptPasswordWithRSA(entry.password),
-    }));
+    // Encriptar el contenido del archivo usando DES con la contraseña maestra
+    const encryptedData = encryptWithDES(jsonString, masterPassword);
 
-    const encryptedJsonData = JSON.stringify({ entries: encryptedEntries });
-    const encryptedData = encryptWithDES(encryptedJsonData, masterPassword);
-
-    // Create a Blob with the encrypted data
+    // Crear una respuesta con el archivo encriptado
     const encryptedBlob = new Blob([encryptedData], {
       type: "application/octet-stream",
     });
 
-    // Prepare the response
     return new Response(encryptedBlob, {
       status: 200,
       headers: {
